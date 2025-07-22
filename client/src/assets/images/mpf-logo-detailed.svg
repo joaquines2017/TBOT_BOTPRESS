@@ -1,0 +1,84 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo con gradiente -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d5aa0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1e3a6f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a2c5a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3d6ab0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d5aa0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Fondo circular -->
+  <circle cx="128" cy="128" r="120" fill="url(#bgGradient)" stroke="#1a2c5a" stroke-width="4"/>
+  
+  <!-- Escudo MPF -->
+  <g transform="translate(128, 128)">
+    <!-- Forma del escudo -->
+    <path d="M0 -80 
+             L60 -50
+             L60 40
+             C60 50 50 60 40 60
+             L-40 60
+             C-50 60 -60 50 -60 40
+             L-60 -50
+             L0 -80 Z" 
+          fill="url(#shieldGradient)" 
+          stroke="#ffffff" 
+          stroke-width="2"
+          opacity="0.95"/>
+    
+    <!-- Sombra interna del escudo -->
+    <path d="M0 -75 
+             L55 -47
+             L55 37
+             C55 45 47 55 37 55
+             L-37 55
+             C-47 55 -55 45 -55 37
+             L-55 -47
+             L0 -75 Z" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="1"
+          opacity="0.3"/>
+    
+    <!-- MPF letras principales -->
+    <text x="0" y="-15" 
+          font-family="Arial, sans-serif" 
+          font-size="32" 
+          font-weight="bold" 
+          text-anchor="middle" 
+          fill="white"
+          style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">MPF</text>
+    
+    <!-- Línea decorativa superior -->
+    <rect x="-45" y="-35" width="90" height="2" fill="white" opacity="0.8" rx="1"/>
+    
+    <!-- Línea decorativa central -->
+    <rect x="-40" y="5" width="80" height="2" fill="white" opacity="0.6" rx="1"/>
+    
+    <!-- Tucumán -->
+    <text x="0" y="35" 
+          font-family="Arial, sans-serif" 
+          font-size="14" 
+          font-weight="500"
+          text-anchor="middle" 
+          fill="white" 
+          opacity="0.9"
+          letter-spacing="2px">TUCUMÁN</text>
+    
+    <!-- Elementos decorativos inferiores -->
+    <circle cx="-20" cy="50" r="3" fill="white" opacity="0.7"/>
+    <circle cx="0" cy="50" r="3" fill="white" opacity="0.7"/>
+    <circle cx="20" cy="50" r="3" fill="white" opacity="0.7"/>
+    
+    <!-- Detalle superior del escudo -->
+    <circle cx="0" cy="-65" r="5" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- Borde exterior sutil -->
+  <circle cx="128" cy="128" r="120" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.3"/>
+</svg>
