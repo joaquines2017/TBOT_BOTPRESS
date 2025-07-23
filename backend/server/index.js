@@ -26,7 +26,7 @@ const writeLog = (message) => {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3002', 'http://localhost:3010', 'http://https://incidentes.mpftucuman.gob.ar:3001/'],
+  origin: ['http://localhost:3002', 'http://tbot_backend:3003', 'https://incidentes.mpftucuman.gob.ar:3001'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -86,5 +86,5 @@ app.use('/api/redmine', ticketRoutes)
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`✅ Servidor corriendo en http://tbot_backend:${PORT}`);
 });
