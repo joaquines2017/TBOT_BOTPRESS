@@ -63,7 +63,15 @@ const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/usuarios', name: 'Usuarios', element: UsuariosAvanzado },
   { path: '/tickets', name: 'Tickets', element: TicketsTable },
-  { path: '/test-tickets', name: 'Test Tickets', element: () => React.createElement(TestPage, { title: 'Test Tickets', message: 'Esta es una página de prueba para tickets' }) },
+  {
+    path: '/test-tickets',
+    name: 'Test Tickets',
+    element: () =>
+      React.createElement(TestPage, {
+        title: 'Test Tickets',
+        message: 'Esta es una página de prueba para tickets',
+      }),
+  },
   { path: '/reportes', name: 'Reportes', element: ReportePersonalizado, exact: true },
   {
     path: '/reportes/personalizado',

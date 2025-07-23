@@ -41,6 +41,11 @@ export default defineConfig(() => {
     },
     server: {
       port: 3010,
+      host: '0.0.0.0',
+      headers: {
+        'Content-Security-Policy':
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self';",
+      },
       proxy: {
         // https://vitejs.dev/config/server-options.html
       },

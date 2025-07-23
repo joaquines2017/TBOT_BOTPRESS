@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import {
-  CCard, CCardBody, CCardHeader, CCol, CRow, CTable, CTableBody, CTableDataCell,
-  CTableHead, CTableHeaderCell, CTableRow, CButton, CFormSelect, CSpinner, CAlert,
-  CFormInput
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CCol,
+  CRow,
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
+  CTableRow,
+  CButton,
+  CFormSelect,
+  CSpinner,
+  CAlert,
+  CFormInput,
 } from '@coreui/react'
 import axios from 'axios'
 
@@ -20,15 +33,15 @@ const TicketsTable = () => {
     if (!priorityName) return ''
     switch (priorityName.toLowerCase()) {
       case 'baja':
-        return '#007bff'        // azul
+        return '#007bff' // azul
       case 'normal':
-        return '#28a745'      // verde
+        return '#28a745' // verde
       case 'alta':
-        return '#9933ff'        // lila
+        return '#9933ff' // lila
       case 'urgente':
-        return '#ff8000'     // naranja
+        return '#ff8000' // naranja
       case 'inmediata':
-        return '#E11318'   // rojo
+        return '#E11318' // rojo
       default:
         return ''
     }
@@ -42,26 +55,38 @@ const TicketsTable = () => {
     { id: 5, name: 'Cerrada' },
   ]
 
-  const normalize = (text) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
+  const normalize = (text) =>
+    text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
 
   const getStatusColor = (name) => {
     const estado = normalize(name || '')
 
     switch (estado) {
-      case 'nueva': return '#9933ff'        // lila
-      case 'en curso': return '#ff8000'     // naranja
-      case 'resuelta': return '#28a745'      // verde
-      case 'rechazada': return '#e0ac14'    // 🟡 amarillo
-      case 'cerrada': return '#ff0000'      // 🔴 rojo
-      default: return ''
+      case 'nueva':
+        return '#9933ff' // lila
+      case 'en curso':
+        return '#ff8000' // naranja
+      case 'resuelta':
+        return '#28a745' // verde
+      case 'rechazada':
+        return '#e0ac14' // 🟡 amarillo
+      case 'cerrada':
+        return '#ff0000' // 🔴 rojo
+      default:
+        return ''
     }
   }
 
   useEffect(() => {
     setLoading(true)
     setError(null)
-    
-    axios.get('http://localhost:3003/api/redmine/tickets')
+
+    axios
+      .get('http://tbot_backend:3003/api/redmine/tickets')
       .then((res) => {
         // Manejar el nuevo formato de respuesta
         const ticketsData = res.data.issues || res.data || []
@@ -74,19 +99,23 @@ const TicketsTable = () => {
         setLoading(false)
       })
 
-    axios.get('http://localhost:3003/api/redmine/prioridades')
+    axios
+      .get('http://tbot_backend:3003/api/redmine/prioridades')
       .then((res) => setPrioridades(res.data))
       .catch((err) => console.error('Error al obtener prioridades:', err))
 
-    axios.get('http://localhost:3003/api/redmine/miembros')
+    axios
+      .get('http://tbot_backend:3003/api/redmine/miembros')
       .then((res) => setMiembros(res.data))
       .catch((err) => console.error('Error al obtener miembros:', err))
   }, [])
 
   const handleStatusChange = async (ticketId, newStatusId) => {
     try {
-      await axios.put(`http://localhost:3003/api/redmine/tickets/${ticketId}`, { status_id: newStatusId })
-      const res = await axios.get('http://localhost:3003/api/redmine/tickets')
+      await axios.put(`http://tbot_backend:3003/api/redmine/tickets/${ticketId}`, {
+        status_id: newStatusId,
+      })
+      const res = await axios.get('http://tbot_backend:3003/api/redmine/tickets')
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
     } catch (err) {
@@ -96,8 +125,10 @@ const TicketsTable = () => {
 
   const handlePriorityChange = async (ticketId, newPriorityId) => {
     try {
-      await axios.put(`http://localhost:3003/api/redmine/tickets/${ticketId}`, { priority_id: newPriorityId })
-      const res = await axios.get('http://localhost:3003/api/redmine/tickets')
+      await axios.put(`http://tbot_backend:3003/api/redmine/tickets/${ticketId}`, {
+        priority_id: newPriorityId,
+      })
+      const res = await axios.get('http://tbot_backend:3003/api/redmine/tickets')
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
     } catch (err) {
@@ -107,8 +138,10 @@ const TicketsTable = () => {
 
   const handleAssignedChange = async (ticketId, newAssignedId) => {
     try {
-      await axios.put(`http://localhost:3003/api/redmine/tickets/${ticketId}`, { assigned_to_id: newAssignedId })
-      const res = await axios.get('http://localhost:3003/api/redmine/tickets')
+      await axios.put(`http://tbot_backend:3003/api/redmine/tickets/${ticketId}`, {
+        assigned_to_id: newAssignedId,
+      })
+      const res = await axios.get('http://tbot_backend:3003/api/redmine/tickets')
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
     } catch (err) {
@@ -121,30 +154,36 @@ const TicketsTable = () => {
     return (
       ticket.id.toString().includes(texto) ||
       (ticket.subject || '').toLowerCase().includes(texto) ||
-      (ticket.custom_fields?.find(f => f.name === 'Oficina')?.value?.toLowerCase() || '').includes(texto) ||
+      (
+        ticket.custom_fields?.find((f) => f.name === 'Oficina')?.value?.toLowerCase() || ''
+      ).includes(texto) ||
       (ticket.assigned_to?.name?.toLowerCase() || '').includes(texto)
     )
   })
 
-  const ticketsPaginados = ticketsPerPage === 0 
-    ? ticketsFiltrados // Mostrar todos si ticketsPerPage es 0
-    : ticketsFiltrados.slice(
-        (currentPage - 1) * ticketsPerPage,
-        currentPage * ticketsPerPage
-      )
+  const ticketsPaginados =
+    ticketsPerPage === 0
+      ? ticketsFiltrados // Mostrar todos si ticketsPerPage es 0
+      : ticketsFiltrados.slice((currentPage - 1) * ticketsPerPage, currentPage * ticketsPerPage)
 
   const getCustomField = (ticket, fieldName) => {
-    const campo = ticket.custom_fields?.find(f => f.name.toLowerCase() === fieldName.toLowerCase())
+    const campo = ticket.custom_fields?.find(
+      (f) => f.name.toLowerCase() === fieldName.toLowerCase(),
+    )
     return campo ? campo.value : ''
   }
 
   const formatFechaHora = (isoDate) => {
     const fecha = new Date(isoDate)
-    return fecha.toLocaleString('es-AR', {
-      dateStyle: 'short',
-      timeStyle: 'short',
-      timeZone: 'America/Argentina/Buenos_Aires',
-    }).replace(',', ' -') + ' hs'
+    return (
+      fecha
+        .toLocaleString('es-AR', {
+          dateStyle: 'short',
+          timeStyle: 'short',
+          timeZone: 'America/Argentina/Buenos_Aires',
+        })
+        .replace(',', ' -') + ' hs'
+    )
   }
 
   return (
@@ -161,7 +200,7 @@ const TicketsTable = () => {
                 {error}
               </CAlert>
             )}
-            
+
             {loading ? (
               <div className="text-center py-4">
                 <CSpinner />
@@ -182,12 +221,14 @@ const TicketsTable = () => {
                     style={{ maxWidth: '100px' }}
                     value={ticketsPerPage}
                     onChange={(e) => {
-                      setTicketsPerPage(Number(e.target.value));
-                      setCurrentPage(1);
+                      setTicketsPerPage(Number(e.target.value))
+                      setCurrentPage(1)
                     }}
                   >
                     {[5, 10, 15, 20, 50].map((n) => (
-                      <option key={n} value={n}>{n} / pág</option>
+                      <option key={n} value={n}>
+                        {n} / pág
+                      </option>
                     ))}
                     <option value={0}>Todos</option>
                   </CFormSelect>
@@ -198,13 +239,23 @@ const TicketsTable = () => {
                     <CTableRow>
                       <CTableHeaderCell style={{ textAlign: 'center' }}>ID</CTableHeaderCell>
                       <CTableHeaderCell style={{ textAlign: 'center' }}>Tipo</CTableHeaderCell>
-                      <CTableHeaderCell style={{ width: '110px', textAlign: 'center' }}>Prioridad</CTableHeaderCell>
-                      <CTableHeaderCell style={{ width: '120px', textAlign: 'center' }}>Estado</CTableHeaderCell>
-                      <CTableHeaderCell style={{ width: '180px', textAlign: 'center' }}>Asignado a</CTableHeaderCell>
+                      <CTableHeaderCell style={{ width: '110px', textAlign: 'center' }}>
+                        Prioridad
+                      </CTableHeaderCell>
+                      <CTableHeaderCell style={{ width: '120px', textAlign: 'center' }}>
+                        Estado
+                      </CTableHeaderCell>
+                      <CTableHeaderCell style={{ width: '180px', textAlign: 'center' }}>
+                        Asignado a
+                      </CTableHeaderCell>
                       <CTableHeaderCell style={{ textAlign: 'center' }}>Asunto</CTableHeaderCell>
                       <CTableHeaderCell style={{ textAlign: 'center' }}>Oficina</CTableHeaderCell>
-                      <CTableHeaderCell style={{ width: '140px', textAlign: 'center' }}>Empleado</CTableHeaderCell>
-                      <CTableHeaderCell style={{ width: '140px', textAlign: 'center' }}>Nro de Contacto</CTableHeaderCell>
+                      <CTableHeaderCell style={{ width: '140px', textAlign: 'center' }}>
+                        Empleado
+                      </CTableHeaderCell>
+                      <CTableHeaderCell style={{ width: '140px', textAlign: 'center' }}>
+                        Nro de Contacto
+                      </CTableHeaderCell>
                       <CTableHeaderCell style={{ textAlign: 'center' }}>Creado</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
@@ -216,7 +267,11 @@ const TicketsTable = () => {
                         <CTableDataCell>
                           <CFormSelect
                             size="sm"
-                            style={{ width: '100px', backgroundColor: getPriorityColor(ticket.priority?.name), color: '#000' }}
+                            style={{
+                              width: '100px',
+                              backgroundColor: getPriorityColor(ticket.priority?.name),
+                              color: '#000',
+                            }}
                             value={ticket.priority?.id}
                             onChange={(e) => handlePriorityChange(ticket.id, e.target.value)}
                           >
@@ -230,7 +285,11 @@ const TicketsTable = () => {
                         <CTableDataCell>
                           <CFormSelect
                             size="sm"
-                            style={{ width: '110px', backgroundColor: getStatusColor(ticket.status?.name), color: '#000' }}
+                            style={{
+                              width: '110px',
+                              backgroundColor: getStatusColor(ticket.status?.name),
+                              color: '#000',
+                            }}
                             value={ticket.status?.id}
                             onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
                           >
@@ -277,10 +336,9 @@ const TicketsTable = () => {
 
                 <div className="d-flex justify-content-between align-items-center mt-3">
                   <div>
-                    {ticketsPerPage === 0 
+                    {ticketsPerPage === 0
                       ? `Mostrando todos los ${ticketsFiltrados.length} tickets`
-                      : `Mostrando ${ticketsPaginados.length} de ${ticketsFiltrados.length} tickets`
-                    }
+                      : `Mostrando ${ticketsPaginados.length} de ${ticketsFiltrados.length} tickets`}
                   </div>
                   {ticketsPerPage > 0 && (
                     <div>
@@ -296,7 +354,9 @@ const TicketsTable = () => {
                       <CButton
                         color="primary"
                         variant="outline"
-                        disabled={currentPage === Math.ceil(ticketsFiltrados.length / ticketsPerPage)}
+                        disabled={
+                          currentPage === Math.ceil(ticketsFiltrados.length / ticketsPerPage)
+                        }
                         onClick={() => setCurrentPage(currentPage + 1)}
                       >
                         Siguiente ➡️

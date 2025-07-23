@@ -32,30 +32,37 @@ import {
   CContainer,
   CButtonGroup,
   CTooltip,
-  CFormLabel
+  CFormLabel,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilPlus, cilPencil, cilTrash, cilHistory, cilUserFollow, cilLockLocked } from '@coreui/icons'
+import {
+  cilPlus,
+  cilPencil,
+  cilTrash,
+  cilHistory,
+  cilUserFollow,
+  cilLockLocked,
+} from '@coreui/icons'
 import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import AdminRoute from '../../components/AdminRoute'
 
 const UsuariosAvanzado = () => {
   const { user: currentUser } = useAuth()
-  
+
   // Estados principales
   const [usuarios, setUsuarios] = useState([])
   const [usuariosInactivos, setUsuariosInactivos] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('activos')
-  
+
   // Estados para modales
   const [modalVisible, setModalVisible] = useState(false)
   const [modalType, setModalType] = useState('') // 'crear', 'editar', 'desactivar', 'reactivar', 'auditoria'
   const [selectedUser, setSelectedUser] = useState(null)
   const [auditoria, setAuditoria] = useState([])
-  
+
   // Estados para formularios
   const [formData, setFormData] = useState({
     nombre: '',
@@ -64,20 +71,20 @@ const UsuariosAvanzado = () => {
     email: '',
     contraseña: '',
     rol: 'tecnico',
-    observaciones: ''
+    observaciones: '',
   })
 
   useEffect(() => {
     fetchUsuarios()
-    
+
     // Escuchar evento de actualización de perfil
     const handleProfileUpdate = () => {
       console.log('🔄 Perfil actualizado, refrescando lista de usuarios...')
       fetchUsuarios()
     }
-    
+
     window.addEventListener('userProfileUpdated', handleProfileUpdate)
-    
+
     // Cleanup del event listener
     return () => {
       window.removeEventListener('userProfileUpdated', handleProfileUpdate)
@@ -88,10 +95,10 @@ const UsuariosAvanzado = () => {
     setLoading(true)
     try {
       const [activosRes, inactivosRes] = await Promise.all([
-        axios.get('http://localhost:3003/api/usuarios'),
-        axios.get('http://localhost:3003/api/usuarios/inactivos')
+        axios.get('http://tbot_backend:3003/api/usuarios'),
+        axios.get('http://tbot_backend:3003/api/usuarios/inactivos'),
       ])
-      
+
       setUsuarios(activosRes.data)
       setUsuariosInactivos(inactivosRes.data)
       setError(null)
@@ -106,20 +113,20 @@ const UsuariosAvanzado = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
-    
+
     try {
       if (modalType === 'crear') {
-        await axios.post('http://localhost:3003/api/usuarios', {
+        await axios.post('http://tbot_backend:3003/api/usuarios', {
           ...formData,
-          usuarioActual: currentUser.id
+          usuarioActual: currentUser.id,
         })
       } else if (modalType === 'editar') {
-        await axios.put(`http://localhost:3003/api/usuarios/${selectedUser.id}`, {
+        await axios.put(`http://tbot_backend:3003/api/usuarios/${selectedUser.id}`, {
           ...formData,
-          usuarioActual: currentUser.id
+          usuarioActual: currentUser.id,
         })
       }
-      
+
       await fetchUsuarios()
       closeModal()
     } catch (err) {
@@ -133,11 +140,11 @@ const UsuariosAvanzado = () => {
   const handleDesactivar = async () => {
     setLoading(true)
     try {
-      await axios.put(`http://localhost:3003/api/usuarios/${selectedUser.id}/desactivar`, {
+      await axios.put(`http://tbot_backend:3003/api/usuarios/${selectedUser.id}/desactivar`, {
         observaciones: formData.observaciones,
-        usuarioActual: currentUser.id
+        usuarioActual: currentUser.id,
       })
-      
+
       await fetchUsuarios()
       closeModal()
     } catch (err) {
@@ -151,11 +158,11 @@ const UsuariosAvanzado = () => {
   const handleReactivar = async () => {
     setLoading(true)
     try {
-      await axios.put(`http://localhost:3003/api/usuarios/${selectedUser.id}/reactivar`, {
+      await axios.put(`http://tbot_backend:3003/api/usuarios/${selectedUser.id}/reactivar`, {
         observaciones: formData.observaciones,
-        usuarioActual: currentUser.id
+        usuarioActual: currentUser.id,
       })
-      
+
       await fetchUsuarios()
       closeModal()
     } catch (err) {
@@ -169,7 +176,9 @@ const UsuariosAvanzado = () => {
   const fetchAuditoria = async (usuarioId) => {
     setLoading(true)
     try {
-      const response = await axios.get(`http://localhost:3003/api/usuarios/${usuarioId}/auditoria`)
+      const response = await axios.get(
+        `http://tbot_backend:3003/api/usuarios/${usuarioId}/auditoria`,
+      )
       setAuditoria(response.data)
     } catch (err) {
       console.error('Error al cargar auditoría:', err)
@@ -182,7 +191,7 @@ const UsuariosAvanzado = () => {
   const openModal = (type, user = null) => {
     setModalType(type)
     setSelectedUser(user)
-    
+
     if (type === 'crear') {
       setFormData({
         nombre: '',
@@ -191,7 +200,7 @@ const UsuariosAvanzado = () => {
         email: '',
         contraseña: '',
         rol: 'tecnico',
-        observaciones: ''
+        observaciones: '',
       })
     } else if (type === 'editar' && user) {
       setFormData({
@@ -201,12 +210,12 @@ const UsuariosAvanzado = () => {
         email: user.email,
         contraseña: '',
         rol: user.rol,
-        observaciones: ''
+        observaciones: '',
       })
     } else if (type === 'auditoria' && user) {
       fetchAuditoria(user.id)
     }
-    
+
     setModalVisible(true)
   }
 
@@ -221,17 +230,17 @@ const UsuariosAvanzado = () => {
       email: '',
       contraseña: '',
       rol: 'tecnico',
-      observaciones: ''
+      observaciones: '',
     })
   }
 
   const getRoleBadge = (rol) => {
     const rolesMap = {
-      'admin': { color: 'danger', text: 'Administrador' },
-      'tecnico': { color: 'info', text: 'Técnico' },
-      'administrativo': { color: 'success', text: 'Administrativo' }
+      admin: { color: 'danger', text: 'Administrador' },
+      tecnico: { color: 'info', text: 'Técnico' },
+      administrativo: { color: 'success', text: 'Administrativo' },
     }
-    
+
     const roleData = rolesMap[rol] || { color: 'secondary', text: 'Usuario' }
     return <CBadge color={roleData.color}>{roleData.text}</CBadge>
   }
@@ -270,11 +279,7 @@ const UsuariosAvanzado = () => {
               <h2>👥 Gestión de Usuarios</h2>
               <p className="text-muted">Administración completa de usuarios del sistema</p>
             </div>
-            <CButton
-              color="primary"
-              onClick={() => openModal('crear')}
-              disabled={loading}
-            >
+            <CButton color="primary" onClick={() => openModal('crear')} disabled={loading}>
               <CIcon icon={cilPlus} className="me-2" />
               Nuevo Usuario
             </CButton>
@@ -299,19 +304,19 @@ const UsuariosAvanzado = () => {
             <CCardHeader className="p-0">
               <CNav variant="tabs">
                 <CNavItem>
-                  <CNavLink 
-                    active={activeTab === 'activos'} 
+                  <CNavLink
+                    active={activeTab === 'activos'}
                     onClick={() => setActiveTab('activos')}
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                   >
                     👤 Usuarios Activos ({usuarios.length})
                   </CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink 
-                    active={activeTab === 'inactivos'} 
+                  <CNavLink
+                    active={activeTab === 'inactivos'}
                     onClick={() => setActiveTab('inactivos')}
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                   >
                     🚫 Usuarios Inactivos ({usuariosInactivos.length})
                   </CNavLink>
@@ -346,7 +351,9 @@ const UsuariosAvanzado = () => {
                           <CTableRow key={usuario.id}>
                             <CTableDataCell>{usuario.id}</CTableDataCell>
                             <CTableDataCell>
-                              <strong>{usuario.nombre} {usuario.apellido}</strong>
+                              <strong>
+                                {usuario.nombre} {usuario.apellido}
+                              </strong>
                             </CTableDataCell>
                             <CTableDataCell>{usuario.usuario}</CTableDataCell>
                             <CTableDataCell>{usuario.email}</CTableDataCell>
@@ -355,7 +362,11 @@ const UsuariosAvanzado = () => {
                               <div>
                                 <small>{formatDate(usuario.fecha_creacion)}</small>
                                 {usuario.usuario_creacion_nombre && (
-                                  <div><small className="text-muted">por {usuario.usuario_creacion_nombre}</small></div>
+                                  <div>
+                                    <small className="text-muted">
+                                      por {usuario.usuario_creacion_nombre}
+                                    </small>
+                                  </div>
                                 )}
                               </div>
                             </CTableDataCell>
@@ -363,7 +374,11 @@ const UsuariosAvanzado = () => {
                               <div>
                                 <small>{formatDate(usuario.fecha_modificacion)}</small>
                                 {usuario.usuario_modificacion_nombre && (
-                                  <div><small className="text-muted">por {usuario.usuario_modificacion_nombre}</small></div>
+                                  <div>
+                                    <small className="text-muted">
+                                      por {usuario.usuario_modificacion_nombre}
+                                    </small>
+                                  </div>
                                 )}
                               </div>
                             </CTableDataCell>
@@ -432,9 +447,13 @@ const UsuariosAvanzado = () => {
                           <CTableRow key={usuario.id}>
                             <CTableDataCell>{usuario.id}</CTableDataCell>
                             <CTableDataCell>
-                              <strong className="text-muted">{usuario.nombre} {usuario.apellido}</strong>
+                              <strong className="text-muted">
+                                {usuario.nombre} {usuario.apellido}
+                              </strong>
                             </CTableDataCell>
-                            <CTableDataCell className="text-muted">{usuario.usuario}</CTableDataCell>
+                            <CTableDataCell className="text-muted">
+                              {usuario.usuario}
+                            </CTableDataCell>
                             <CTableDataCell className="text-muted">{usuario.email}</CTableDataCell>
                             <CTableDataCell>{getRoleBadge(usuario.rol)}</CTableDataCell>
                             <CTableDataCell>
@@ -478,7 +497,11 @@ const UsuariosAvanzado = () => {
       </CRow>
 
       {/* Modal para crear/editar usuario */}
-      <CModal visible={modalVisible && (modalType === 'crear' || modalType === 'editar')} onClose={closeModal} size="lg">
+      <CModal
+        visible={modalVisible && (modalType === 'crear' || modalType === 'editar')}
+        onClose={closeModal}
+        size="lg"
+      >
         <CModalHeader>
           <CModalTitle>
             {modalType === 'crear' ? '➕ Crear Usuario' : '✏️ Editar Usuario'}
@@ -491,7 +514,7 @@ const UsuariosAvanzado = () => {
                 <CFormInput
                   label="Nombre"
                   value={formData.nombre}
-                  onChange={(e) => setFormData({...formData, nombre: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                   required
                 />
               </CCol>
@@ -499,7 +522,7 @@ const UsuariosAvanzado = () => {
                 <CFormInput
                   label="Apellido"
                   value={formData.apellido}
-                  onChange={(e) => setFormData({...formData, apellido: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
                   required
                 />
               </CCol>
@@ -509,7 +532,7 @@ const UsuariosAvanzado = () => {
                 <CFormInput
                   label="Usuario"
                   value={formData.usuario}
-                  onChange={(e) => setFormData({...formData, usuario: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, usuario: e.target.value })}
                   required
                 />
               </CCol>
@@ -518,7 +541,7 @@ const UsuariosAvanzado = () => {
                   label="Email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
                 />
               </CCol>
@@ -529,7 +552,7 @@ const UsuariosAvanzado = () => {
                   label={modalType === 'crear' ? 'Contraseña' : 'Nueva Contraseña (opcional)'}
                   type="password"
                   value={formData.contraseña}
-                  onChange={(e) => setFormData({...formData, contraseña: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, contraseña: e.target.value })}
                   required={modalType === 'crear'}
                 />
               </CCol>
@@ -537,7 +560,7 @@ const UsuariosAvanzado = () => {
                 <CFormSelect
                   label="Rol"
                   value={formData.rol}
-                  onChange={(e) => setFormData({...formData, rol: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
                   required
                 >
                   <option value="tecnico">Técnico</option>
@@ -552,7 +575,7 @@ const UsuariosAvanzado = () => {
               Cancelar
             </CButton>
             <CButton color="primary" type="submit" disabled={loading}>
-              {loading ? <CSpinner size="sm" /> : (modalType === 'crear' ? 'Crear' : 'Guardar')}
+              {loading ? <CSpinner size="sm" /> : modalType === 'crear' ? 'Crear' : 'Guardar'}
             </CButton>
           </CModalFooter>
         </CForm>
@@ -564,11 +587,17 @@ const UsuariosAvanzado = () => {
           <CModalTitle>🚫 Desactivar Usuario</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <p>¿Está seguro que desea desactivar al usuario <strong>{selectedUser?.nombre} {selectedUser?.apellido}</strong>?</p>
+          <p>
+            ¿Está seguro que desea desactivar al usuario{' '}
+            <strong>
+              {selectedUser?.nombre} {selectedUser?.apellido}
+            </strong>
+            ?
+          </p>
           <CFormTextarea
             label="Observaciones (opcional)"
             value={formData.observaciones}
-            onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
             placeholder="Motivo de la desactivación..."
             rows={3}
           />
@@ -589,11 +618,17 @@ const UsuariosAvanzado = () => {
           <CModalTitle>✅ Reactivar Usuario</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <p>¿Está seguro que desea reactivar al usuario <strong>{selectedUser?.nombre} {selectedUser?.apellido}</strong>?</p>
+          <p>
+            ¿Está seguro que desea reactivar al usuario{' '}
+            <strong>
+              {selectedUser?.nombre} {selectedUser?.apellido}
+            </strong>
+            ?
+          </p>
           <CFormTextarea
             label="Observaciones (opcional)"
             value={formData.observaciones}
-            onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
             placeholder="Motivo de la reactivación..."
             rows={3}
           />
@@ -611,7 +646,9 @@ const UsuariosAvanzado = () => {
       {/* Modal para auditoría */}
       <CModal visible={modalVisible && modalType === 'auditoria'} onClose={closeModal} size="xl">
         <CModalHeader>
-          <CModalTitle>📜 Auditoría de Usuario: {selectedUser?.nombre} {selectedUser?.apellido}</CModalTitle>
+          <CModalTitle>
+            📜 Auditoría de Usuario: {selectedUser?.nombre} {selectedUser?.apellido}
+          </CModalTitle>
         </CModalHeader>
         <CModalBody>
           {loading ? (
@@ -636,18 +673,23 @@ const UsuariosAvanzado = () => {
                       <small>{formatDate(entry.fecha_hora)}</small>
                     </CTableDataCell>
                     <CTableDataCell>
-                      <CBadge color={
-                        entry.accion === 'creado' ? 'success' :
-                        entry.accion === 'editado' || entry.accion === 'perfil_editado' ? 'info' :
-                        entry.accion === 'desactivado' ? 'danger' :
-                        entry.accion === 'reactivado' ? 'success' : 'secondary'
-                      }>
+                      <CBadge
+                        color={
+                          entry.accion === 'creado'
+                            ? 'success'
+                            : entry.accion === 'editado' || entry.accion === 'perfil_editado'
+                              ? 'info'
+                              : entry.accion === 'desactivado'
+                                ? 'danger'
+                                : entry.accion === 'reactivado'
+                                  ? 'success'
+                                  : 'secondary'
+                        }
+                      >
                         {entry.accion}
                       </CBadge>
                     </CTableDataCell>
-                    <CTableDataCell>
-                      {entry.usuario_responsable_nombre || 'Sistema'}
-                    </CTableDataCell>
+                    <CTableDataCell>{entry.usuario_responsable_nombre || 'Sistema'}</CTableDataCell>
                     <CTableDataCell>
                       <small>{entry.observaciones || 'N/A'}</small>
                     </CTableDataCell>

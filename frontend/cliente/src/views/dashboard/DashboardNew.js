@@ -22,28 +22,28 @@ import {
   CDropdown,
   CDropdownToggle,
   CDropdownMenu,
-  CDropdownItem
+  CDropdownItem,
 } from '@coreui/react'
 import axios from 'axios'
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  Tooltip, 
-  ResponsiveContainer, 
-  Legend, 
-  LineChart, 
-  Line, 
-  PieChart, 
-  Pie, 
-  Cell, 
-  Area, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  Area,
   AreaChart,
   ComposedChart,
   CartesianGrid,
   ScatterChart,
-  Scatter
+  Scatter,
 } from 'recharts'
 
 const DashboardNew = () => {
@@ -55,7 +55,7 @@ const DashboardNew = () => {
   const [lastUpdate, setLastUpdate] = useState(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [refreshInterval, setRefreshInterval] = useState(5) // minutos
-  
+
   // Estados para gráficos
   const [kpiEstado, setKpiEstado] = useState([])
   const [kpiPrioridad, setKpiPrioridad] = useState([])
@@ -71,18 +71,17 @@ const DashboardNew = () => {
   const fetchDashboardData = async () => {
     setLoading(true)
     setError(null)
-    
+
     try {
       // Obtener todos los tickets
-      const response = await axios.get('http://localhost:3001/api/redmine/tickets?limit=2000')
+      const response = await axios.get('http://tbot_backend:3001/api/redmine/tickets?limit=2000')
       const ticketsData = response.data.issues || []
       setTickets(ticketsData)
-      
+
       // Calcular todas las estadísticas
       await calculateAdvancedStatistics(ticketsData)
-      
+
       setLastUpdate(new Date())
-      
     } catch (err) {
       console.error('Error al cargar datos del dashboard:', err)
       setError('Error al cargar los datos. Verifique la conexión con Redmine.')
@@ -108,7 +107,7 @@ const DashboardNew = () => {
       promedioResolucion: 0,
       eficienciaTecnicos: {},
       tendenciaCreacion: [],
-      cargaTrabajo: {}
+      cargaTrabajo: {},
     }
 
     const hoy = new Date()
@@ -117,16 +116,17 @@ const DashboardNew = () => {
     const hace30Dias = new Date(hoy.getTime() - 30 * 24 * 60 * 60 * 1000)
 
     // Procesar cada ticket
-    ticketsData.forEach(ticket => {
+    ticketsData.forEach((ticket) => {
       const fechaCreacion = new Date(ticket.created_on)
       const fechaActualizacion = ticket.updated_on ? new Date(ticket.updated_on) : null
-      
+
       // Estadísticas básicas por categoría
       const estado = ticket.status?.name || 'Sin estado'
       const prioridad = ticket.priority?.name || 'Sin prioridad'
       const tecnico = ticket.assigned_to?.name || 'Sin asignar'
-      const oficina = ticket.custom_fields?.find(f => f.name === 'Oficina')?.value || 'Sin oficina'
-      
+      const oficina =
+        ticket.custom_fields?.find((f) => f.name === 'Oficina')?.value || 'Sin oficina'
+
       stats.porEstado[estado] = (stats.porEstado[estado] || 0) + 1
       stats.porPrioridad[prioridad] = (stats.porPrioridad[prioridad] || 0) + 1
       stats.porTecnico[tecnico] = (stats.porTecnico[tecnico] || 0) + 1
@@ -163,7 +163,7 @@ const DashboardNew = () => {
             total: 0,
             resueltos: 0,
             criticos: 0,
-            tiempoPromedio: 0
+            tiempoPromedio: 0,
           }
         }
         stats.eficienciaTecnicos[tecnico].total++
@@ -178,19 +178,27 @@ const DashboardNew = () => {
 
     // Calcular tendencias
     calculateTrends(ticketsData)
-    
+
     // Calcular eficiencia de técnicos
     calculateTechniciansEfficiency(stats.eficienciaTecnicos)
-    
+
     // Calcular distribución de tiempo
     calculateTimeDistribution(ticketsData)
-    
+
     // Convertir a arrays para gráficos
-    setKpiEstado(Object.entries(stats.porEstado).map(([estado, cantidad]) => ({ estado, cantidad })))
-    setKpiPrioridad(Object.entries(stats.porPrioridad).map(([prioridad, cantidad]) => ({ prioridad, cantidad })))
-    setKpiTecnico(Object.entries(stats.porTecnico).map(([tecnico, cantidad]) => ({ tecnico, cantidad })))
-    setKpiOficina(Object.entries(stats.porOficina).map(([oficina, cantidad]) => ({ oficina, cantidad })))
-    
+    setKpiEstado(
+      Object.entries(stats.porEstado).map(([estado, cantidad]) => ({ estado, cantidad })),
+    )
+    setKpiPrioridad(
+      Object.entries(stats.porPrioridad).map(([prioridad, cantidad]) => ({ prioridad, cantidad })),
+    )
+    setKpiTecnico(
+      Object.entries(stats.porTecnico).map(([tecnico, cantidad]) => ({ tecnico, cantidad })),
+    )
+    setKpiOficina(
+      Object.entries(stats.porOficina).map(([oficina, cantidad]) => ({ oficina, cantidad })),
+    )
+
     setStatistics(stats)
   }
 
@@ -201,15 +209,15 @@ const DashboardNew = () => {
       const fecha = new Date()
       fecha.setDate(fecha.getDate() - i)
       const fechaStr = fecha.toISOString().split('T')[0]
-      
-      const ticketsDia = ticketsData.filter(ticket => 
-        ticket.created_on.split('T')[0] === fechaStr
+
+      const ticketsDia = ticketsData.filter(
+        (ticket) => ticket.created_on.split('T')[0] === fechaStr,
       ).length
-      
+
       last30Days.push({
         fecha: fecha.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }),
         tickets: ticketsDia,
-        fechaCompleta: fechaStr
+        fechaCompleta: fechaStr,
       })
     }
     setTendenciaUltimos30Dias(last30Days)
@@ -225,17 +233,17 @@ const DashboardNew = () => {
       fecha.setMonth(fecha.getMonth() - i)
       const año = fecha.getFullYear()
       const mes = fecha.getMonth() + 1
-      
-      const ticketsMes = ticketsData.filter(ticket => {
+
+      const ticketsMes = ticketsData.filter((ticket) => {
         const fechaTicket = new Date(ticket.created_on)
         return fechaTicket.getFullYear() === año && fechaTicket.getMonth() + 1 === mes
       }).length
-      
+
       ticketsPorMes.push({
         mes: fecha.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' }),
         tickets: ticketsMes,
         año,
-        mesNum: mes
+        mesNum: mes,
       })
     }
     setTicketsPorMes(ticketsPorMes)
@@ -249,11 +257,11 @@ const DashboardNew = () => {
         resueltos: stats.resueltos,
         criticos: stats.criticos,
         eficiencia: stats.total > 0 ? Math.round((stats.resueltos / stats.total) * 100) : 0,
-        cargaCritica: stats.total > 0 ? Math.round((stats.criticos / stats.total) * 100) : 0
+        cargaCritica: stats.total > 0 ? Math.round((stats.criticos / stats.total) * 100) : 0,
       }))
       .sort((a, b) => b.total - a.total)
       .slice(0, 10)
-    
+
     setEficienciaTecnicos(eficienciaArray)
   }
 
@@ -264,13 +272,15 @@ const DashboardNew = () => {
       '3-7 días': 0,
       '1-2 semanas': 0,
       '2-4 semanas': 0,
-      '1+ mes': 0
+      '1+ mes': 0,
     }
 
-    ticketsData.forEach(ticket => {
+    ticketsData.forEach((ticket) => {
       const fechaCreacion = new Date(ticket.created_on)
       const fechaActualizacion = ticket.updated_on ? new Date(ticket.updated_on) : new Date()
-      const diasTranscurridos = Math.floor((fechaActualizacion - fechaCreacion) / (1000 * 60 * 60 * 24))
+      const diasTranscurridos = Math.floor(
+        (fechaActualizacion - fechaCreacion) / (1000 * 60 * 60 * 24),
+      )
 
       if (diasTranscurridos <= 1) {
         distribuciones['0-1 día']++
@@ -290,7 +300,7 @@ const DashboardNew = () => {
     const distribucionArray = Object.entries(distribuciones).map(([periodo, cantidad]) => ({
       periodo,
       cantidad,
-      porcentaje: statistics.total > 0 ? Math.round((cantidad / statistics.total) * 100) : 0
+      porcentaje: statistics.total > 0 ? Math.round((cantidad / statistics.total) * 100) : 0,
     }))
 
     setDistribucionTiempo(distribucionArray)
@@ -312,23 +322,23 @@ const DashboardNew = () => {
     info: '#17a2b8',
     secondary: '#6c757d',
     light: '#f8f9fa',
-    dark: '#343a40'
+    dark: '#343a40',
   }
 
   const prioridadColors = {
-    'Baja': colorPalette.info,
-    'Normal': colorPalette.success,
-    'Alta': colorPalette.warning,
-    'Urgente': '#fd7e14',
-    'Inmediata': colorPalette.danger
+    Baja: colorPalette.info,
+    Normal: colorPalette.success,
+    Alta: colorPalette.warning,
+    Urgente: '#fd7e14',
+    Inmediata: colorPalette.danger,
   }
 
   const estadoColors = {
-    'Nueva': '#6f42c1',
+    Nueva: '#6f42c1',
     'En curso': colorPalette.primary,
-    'Resuelta': colorPalette.success,
-    'Cerrada': colorPalette.secondary,
-    'Rechazada': colorPalette.danger
+    Resuelta: colorPalette.success,
+    Cerrada: colorPalette.secondary,
+    Rechazada: colorPalette.danger,
   }
 
   // Renderizado de loading
@@ -356,7 +366,9 @@ const DashboardNew = () => {
               <CRow className="align-items-center">
                 <CCol>
                   <div className="d-flex align-items-center">
-                    <div className="me-3" style={{fontSize: '3rem'}}>🎯</div>
+                    <div className="me-3" style={{ fontSize: '3rem' }}>
+                      🎯
+                    </div>
                     <div>
                       <h2 className="text-white mb-0">Dashboard Soporte Técnico</h2>
                       <p className="text-white-50 mb-0">
@@ -377,25 +389,33 @@ const DashboardNew = () => {
                         🔄 Actualizar cada {refreshInterval}min
                       </CDropdownToggle>
                       <CDropdownMenu>
-                        <CDropdownItem onClick={() => setRefreshInterval(1)}>1 minuto</CDropdownItem>
-                        <CDropdownItem onClick={() => setRefreshInterval(5)}>5 minutos</CDropdownItem>
-                        <CDropdownItem onClick={() => setRefreshInterval(15)}>15 minutos</CDropdownItem>
-                        <CDropdownItem onClick={() => setRefreshInterval(30)}>30 minutos</CDropdownItem>
+                        <CDropdownItem onClick={() => setRefreshInterval(1)}>
+                          1 minuto
+                        </CDropdownItem>
+                        <CDropdownItem onClick={() => setRefreshInterval(5)}>
+                          5 minutos
+                        </CDropdownItem>
+                        <CDropdownItem onClick={() => setRefreshInterval(15)}>
+                          15 minutos
+                        </CDropdownItem>
+                        <CDropdownItem onClick={() => setRefreshInterval(30)}>
+                          30 minutos
+                        </CDropdownItem>
                       </CDropdownMenu>
                     </CDropdown>
-                    <CButton 
-                      color="light" 
+                    <CButton
+                      color="light"
                       variant="outline"
-                      size="sm" 
+                      size="sm"
                       onClick={fetchDashboardData}
                       disabled={loading}
                     >
                       {loading ? <CSpinner size="sm" /> : '🔄'} Actualizar
                     </CButton>
-                    <CButton 
-                      color="light" 
+                    <CButton
+                      color="light"
                       variant="outline"
-                      size="sm" 
+                      size="sm"
                       onClick={() => window.open('/tickets', '_blank')}
                     >
                       📋 Ver Tickets
@@ -426,37 +446,37 @@ const DashboardNew = () => {
             <CCardHeader className="p-0">
               <CNav variant="tabs">
                 <CNavItem>
-                  <CNavLink 
-                    active={activeTab === 'overview'} 
+                  <CNavLink
+                    active={activeTab === 'overview'}
                     onClick={() => setActiveTab('overview')}
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                   >
                     📊 Resumen General
                   </CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink 
-                    active={activeTab === 'trends'} 
+                  <CNavLink
+                    active={activeTab === 'trends'}
                     onClick={() => setActiveTab('trends')}
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                   >
                     📈 Tendencias
                   </CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink 
-                    active={activeTab === 'performance'} 
+                  <CNavLink
+                    active={activeTab === 'performance'}
                     onClick={() => setActiveTab('performance')}
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                   >
                     🎯 Rendimiento
                   </CNavLink>
                 </CNavItem>
                 <CNavItem>
-                  <CNavLink 
-                    active={activeTab === 'analysis'} 
+                  <CNavLink
+                    active={activeTab === 'analysis'}
                     onClick={() => setActiveTab('analysis')}
-                    style={{cursor: 'pointer'}}
+                    style={{ cursor: 'pointer' }}
                   >
                     🔍 Análisis Detallado
                   </CNavLink>
@@ -471,14 +491,20 @@ const DashboardNew = () => {
                   <CRow className="mb-4">
                     <CCol lg={3} md={6} className="mb-3">
                       <CCard className="h-100 border-0 shadow-sm">
-                        <CCardBody className="bg-gradient text-white position-relative overflow-hidden" 
-                                  style={{background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}}>
+                        <CCardBody
+                          className="bg-gradient text-white position-relative overflow-hidden"
+                          style={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          }}
+                        >
                           <div className="position-absolute top-0 end-0 p-3 opacity-25">
-                            <div style={{fontSize: '4rem'}}>📊</div>
+                            <div style={{ fontSize: '4rem' }}>📊</div>
                           </div>
                           <div className="position-relative">
                             <div className="fs-6 mb-2 text-white-75">Total de Tickets</div>
-                            <div className="fs-1 fw-bold mb-1">{statistics.total?.toLocaleString() || 0}</div>
+                            <div className="fs-1 fw-bold mb-1">
+                              {statistics.total?.toLocaleString() || 0}
+                            </div>
                             <div className="d-flex justify-content-between align-items-center">
                               <small className="text-white-75">Histórico completo</small>
                               <CBadge color="light" className="text-dark">
@@ -489,19 +515,25 @@ const DashboardNew = () => {
                         </CCardBody>
                       </CCard>
                     </CCol>
-                    
+
                     <CCol lg={3} md={6} className="mb-3">
                       <CCard className="h-100 border-0 shadow-sm">
-                        <CCardBody className="bg-gradient text-white position-relative overflow-hidden" 
-                                  style={{background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'}}>
+                        <CCardBody
+                          className="bg-gradient text-white position-relative overflow-hidden"
+                          style={{
+                            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                          }}
+                        >
                           <div className="position-absolute top-0 end-0 p-3 opacity-25">
-                            <div style={{fontSize: '4rem'}}>🚀</div>
+                            <div style={{ fontSize: '4rem' }}>🚀</div>
                           </div>
                           <div className="position-relative">
                             <div className="fs-6 mb-2 text-white-75">Tickets Hoy</div>
                             <div className="fs-1 fw-bold mb-1">{statistics.ticketsHoy || 0}</div>
                             <div className="d-flex justify-content-between align-items-center">
-                              <small className="text-white-75">{new Date().toLocaleDateString('es-ES')}</small>
+                              <small className="text-white-75">
+                                {new Date().toLocaleDateString('es-ES')}
+                              </small>
                               <CBadge color="light" className="text-dark">
                                 +{statistics.ticketsEstaSeana || 0} esta semana
                               </CBadge>
@@ -510,20 +542,31 @@ const DashboardNew = () => {
                         </CCardBody>
                       </CCard>
                     </CCol>
-                    
+
                     <CCol lg={3} md={6} className="mb-3">
                       <CCard className="h-100 border-0 shadow-sm">
-                        <CCardBody className="bg-gradient text-white position-relative overflow-hidden" 
-                                  style={{background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'}}>
+                        <CCardBody
+                          className="bg-gradient text-white position-relative overflow-hidden"
+                          style={{
+                            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                          }}
+                        >
                           <div className="position-absolute top-0 end-0 p-3 opacity-25">
-                            <div style={{fontSize: '4rem'}}>✅</div>
+                            <div style={{ fontSize: '4rem' }}>✅</div>
                           </div>
                           <div className="position-relative">
                             <div className="fs-6 mb-2 text-white-75">Resueltos</div>
-                            <div className="fs-1 fw-bold mb-1">{statistics.ticketsResueltos || 0}</div>
+                            <div className="fs-1 fw-bold mb-1">
+                              {statistics.ticketsResueltos || 0}
+                            </div>
                             <div className="d-flex justify-content-between align-items-center">
                               <small className="text-white-75">
-                                {statistics.total > 0 ? Math.round((statistics.ticketsResueltos / statistics.total) * 100) : 0}% del total
+                                {statistics.total > 0
+                                  ? Math.round(
+                                      (statistics.ticketsResueltos / statistics.total) * 100,
+                                    )
+                                  : 0}
+                                % del total
                               </small>
                               <CBadge color="light" className="text-dark">
                                 Eficiencia
@@ -533,21 +576,32 @@ const DashboardNew = () => {
                         </CCardBody>
                       </CCard>
                     </CCol>
-                    
+
                     <CCol lg={3} md={6} className="mb-3">
                       <CCard className="h-100 border-0 shadow-sm">
-                        <CCardBody className="bg-gradient text-white position-relative overflow-hidden" 
-                                  style={{background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'}}>
+                        <CCardBody
+                          className="bg-gradient text-white position-relative overflow-hidden"
+                          style={{
+                            background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                          }}
+                        >
                           <div className="position-absolute top-0 end-0 p-3 opacity-25">
-                            <div style={{fontSize: '4rem'}}>⚡</div>
+                            <div style={{ fontSize: '4rem' }}>⚡</div>
                           </div>
                           <div className="position-relative">
                             <div className="fs-6 mb-2 text-white-75">Críticos</div>
-                            <div className="fs-1 fw-bold mb-1">{statistics.ticketsCriticos || 0}</div>
+                            <div className="fs-1 fw-bold mb-1">
+                              {statistics.ticketsCriticos || 0}
+                            </div>
                             <div className="d-flex justify-content-between align-items-center">
                               <small className="text-white-75">Urgente + Inmediata</small>
                               <CBadge color="light" className="text-dark">
-                                {statistics.total > 0 ? Math.round((statistics.ticketsCriticos / statistics.total) * 100) : 0}%
+                                {statistics.total > 0
+                                  ? Math.round(
+                                      (statistics.ticketsCriticos / statistics.total) * 100,
+                                    )
+                                  : 0}
+                                %
                               </CBadge>
                             </div>
                           </div>
@@ -565,7 +619,9 @@ const DashboardNew = () => {
                             <h5 className="mb-0">🎯 Estados de Tickets</h5>
                             <small className="text-muted">Distribución actual</small>
                           </div>
-                          <CBadge color="primary" pill>{kpiEstado.length} estados</CBadge>
+                          <CBadge color="primary" pill>
+                            {kpiEstado.length} estados
+                          </CBadge>
                         </CCardHeader>
                         <CCardBody>
                           <ResponsiveContainer width="100%" height={300}>
@@ -577,10 +633,17 @@ const DashboardNew = () => {
                                 cx="50%"
                                 cy="50%"
                                 outerRadius={100}
-                                label={({estado, percent}) => `${estado} (${(percent * 100).toFixed(0)}%)`}
+                                label={({ estado, percent }) =>
+                                  `${estado} (${(percent * 100).toFixed(0)}%)`
+                                }
                               >
                                 {kpiEstado.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={estadoColors[entry.estado] || `hsl(${index * 45}, 70%, 50%)`} />
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={
+                                      estadoColors[entry.estado] || `hsl(${index * 45}, 70%, 50%)`
+                                    }
+                                  />
                                 ))}
                               </Pie>
                               <Tooltip formatter={(value) => [value, 'Tickets']} />
@@ -589,7 +652,7 @@ const DashboardNew = () => {
                         </CCardBody>
                       </CCard>
                     </CCol>
-                    
+
                     <CCol lg={6} className="mb-4">
                       <CCard className="h-100 shadow-sm">
                         <CCardHeader className="bg-light border-0 d-flex justify-content-between align-items-center">
@@ -597,7 +660,9 @@ const DashboardNew = () => {
                             <h5 className="mb-0">🔥 Prioridades</h5>
                             <small className="text-muted">Distribución por urgencia</small>
                           </div>
-                          <CBadge color="danger" pill>{statistics.ticketsCriticos} críticos</CBadge>
+                          <CBadge color="danger" pill>
+                            {statistics.ticketsCriticos} críticos
+                          </CBadge>
                         </CCardHeader>
                         <CCardBody>
                           <ResponsiveContainer width="100%" height={300}>
@@ -608,7 +673,10 @@ const DashboardNew = () => {
                               <Tooltip />
                               <Bar dataKey="cantidad" radius={[0, 4, 4, 0]}>
                                 {kpiPrioridad.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={prioridadColors[entry.prioridad] || '#6c757d'} />
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={prioridadColors[entry.prioridad] || '#6c757d'}
+                                  />
                                 ))}
                               </Bar>
                             </BarChart>
@@ -631,20 +699,20 @@ const DashboardNew = () => {
                             <AreaChart data={tendenciaUltimos7Dias}>
                               <defs>
                                 <linearGradient id="colorTickets" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#007bff" stopOpacity={0.8}/>
-                                  <stop offset="95%" stopColor="#007bff" stopOpacity={0.1}/>
+                                  <stop offset="5%" stopColor="#007bff" stopOpacity={0.8} />
+                                  <stop offset="95%" stopColor="#007bff" stopOpacity={0.1} />
                                 </linearGradient>
                               </defs>
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="fecha" />
                               <YAxis />
                               <Tooltip />
-                              <Area 
-                                type="monotone" 
-                                dataKey="tickets" 
-                                stroke="#007bff" 
-                                fillOpacity={1} 
-                                fill="url(#colorTickets)" 
+                              <Area
+                                type="monotone"
+                                dataKey="tickets"
+                                stroke="#007bff"
+                                fillOpacity={1}
+                                fill="url(#colorTickets)"
                               />
                             </AreaChart>
                           </ResponsiveContainer>
@@ -670,10 +738,10 @@ const DashboardNew = () => {
                               <XAxis dataKey="fecha" />
                               <YAxis />
                               <Tooltip />
-                              <Line 
-                                type="monotone" 
-                                dataKey="tickets" 
-                                stroke="#007bff" 
+                              <Line
+                                type="monotone"
+                                dataKey="tickets"
+                                stroke="#007bff"
                                 strokeWidth={3}
                                 dot={{ fill: '#007bff', strokeWidth: 2, r: 4 }}
                                 activeDot={{ r: 6 }}
@@ -690,7 +758,9 @@ const DashboardNew = () => {
                       <CCard className="shadow-sm">
                         <CCardHeader className="bg-light border-0">
                           <h5 className="mb-0">📅 Evolución Mensual</h5>
-                          <small className="text-muted">Tickets creados por mes (últimos 12 meses)</small>
+                          <small className="text-muted">
+                            Tickets creados por mes (últimos 12 meses)
+                          </small>
                         </CCardHeader>
                         <CCardBody>
                           <ResponsiveContainer width="100%" height={350}>
@@ -712,7 +782,9 @@ const DashboardNew = () => {
                       <CCard className="shadow-sm">
                         <CCardHeader className="bg-light border-0">
                           <h5 className="mb-0">⏰ Distribución de Tiempo de Resolución</h5>
-                          <small className="text-muted">Tiempo transcurrido desde la creación</small>
+                          <small className="text-muted">
+                            Tiempo transcurrido desde la creación
+                          </small>
                         </CCardHeader>
                         <CCardBody>
                           <ResponsiveContainer width="100%" height={300}>
@@ -748,9 +820,25 @@ const DashboardNew = () => {
                               <YAxis yAxisId="right" orientation="right" />
                               <Tooltip />
                               <Legend />
-                              <Bar yAxisId="left" dataKey="total" fill="#007bff" name="Total Tickets" />
-                              <Bar yAxisId="left" dataKey="resueltos" fill="#28a745" name="Resueltos" />
-                              <Line yAxisId="right" type="monotone" dataKey="eficiencia" stroke="#dc3545" name="Eficiencia %" />
+                              <Bar
+                                yAxisId="left"
+                                dataKey="total"
+                                fill="#007bff"
+                                name="Total Tickets"
+                              />
+                              <Bar
+                                yAxisId="left"
+                                dataKey="resueltos"
+                                fill="#28a745"
+                                name="Resueltos"
+                              />
+                              <Line
+                                yAxisId="right"
+                                type="monotone"
+                                dataKey="eficiencia"
+                                stroke="#dc3545"
+                                name="Eficiencia %"
+                              />
                             </ComposedChart>
                           </ResponsiveContainer>
                         </CCardBody>
@@ -778,7 +866,7 @@ const DashboardNew = () => {
                         </CCardBody>
                       </CCard>
                     </CCol>
-                    
+
                     <CCol lg={6}>
                       <CCard className="shadow-sm">
                         <CCardHeader className="bg-light border-0">
@@ -787,7 +875,7 @@ const DashboardNew = () => {
                         </CCardHeader>
                         <CCardBody>
                           <ResponsiveContainer width="100%" height={350}>
-                            <BarChart data={eficienciaTecnicos.filter(t => t.criticos > 0)}>
+                            <BarChart data={eficienciaTecnicos.filter((t) => t.criticos > 0)}>
                               <CartesianGrid strokeDasharray="3 3" />
                               <XAxis dataKey="tecnico" angle={-45} textAnchor="end" height={100} />
                               <YAxis />
@@ -812,15 +900,15 @@ const DashboardNew = () => {
                         </CCardHeader>
                         <CCardBody>
                           <ResponsiveContainer width="100%" height={500}>
-                            <BarChart 
-                              data={kpiOficina.slice(0, 15)} 
+                            <BarChart
+                              data={kpiOficina.slice(0, 15)}
                               margin={{ top: 20, right: 30, left: 20, bottom: 120 }}
                             >
                               <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis 
-                                dataKey="oficina" 
-                                angle={-45} 
-                                textAnchor="end" 
+                              <XAxis
+                                dataKey="oficina"
+                                angle={-45}
+                                textAnchor="end"
                                 height={150}
                                 fontSize={11}
                                 interval={0}
@@ -856,7 +944,7 @@ const DashboardNew = () => {
                         </CCardBody>
                       </CCard>
                     </CCol>
-                    
+
                     <CCol lg={6}>
                       <CCard className="shadow-sm">
                         <CCardHeader className="bg-light border-0">
@@ -868,42 +956,75 @@ const DashboardNew = () => {
                             <div className="d-flex justify-content-between mb-2">
                               <span>Tasa de Resolución</span>
                               <span className="fw-bold">
-                                {statistics.total > 0 ? Math.round((statistics.ticketsResueltos / statistics.total) * 100) : 0}%
+                                {statistics.total > 0
+                                  ? Math.round(
+                                      (statistics.ticketsResueltos / statistics.total) * 100,
+                                    )
+                                  : 0}
+                                %
                               </span>
                             </div>
                             <CProgress>
-                              <CProgressBar 
-                                value={statistics.total > 0 ? Math.round((statistics.ticketsResueltos / statistics.total) * 100) : 0} 
+                              <CProgressBar
+                                value={
+                                  statistics.total > 0
+                                    ? Math.round(
+                                        (statistics.ticketsResueltos / statistics.total) * 100,
+                                      )
+                                    : 0
+                                }
                                 color="success"
                               />
                             </CProgress>
                           </div>
-                          
+
                           <div className="mb-4">
                             <div className="d-flex justify-content-between mb-2">
                               <span>Tickets Críticos</span>
                               <span className="fw-bold">
-                                {statistics.total > 0 ? Math.round((statistics.ticketsCriticos / statistics.total) * 100) : 0}%
+                                {statistics.total > 0
+                                  ? Math.round(
+                                      (statistics.ticketsCriticos / statistics.total) * 100,
+                                    )
+                                  : 0}
+                                %
                               </span>
                             </div>
                             <CProgress>
-                              <CProgressBar 
-                                value={statistics.total > 0 ? Math.round((statistics.ticketsCriticos / statistics.total) * 100) : 0} 
+                              <CProgressBar
+                                value={
+                                  statistics.total > 0
+                                    ? Math.round(
+                                        (statistics.ticketsCriticos / statistics.total) * 100,
+                                      )
+                                    : 0
+                                }
                                 color="danger"
                               />
                             </CProgress>
                           </div>
-                          
+
                           <div className="mb-4">
                             <div className="d-flex justify-content-between mb-2">
                               <span>Actividad Reciente (30 días)</span>
                               <span className="fw-bold">
-                                {statistics.total > 0 ? Math.round((statistics.ticketsUltimos30Dias / statistics.total) * 100) : 0}%
+                                {statistics.total > 0
+                                  ? Math.round(
+                                      (statistics.ticketsUltimos30Dias / statistics.total) * 100,
+                                    )
+                                  : 0}
+                                %
                               </span>
                             </div>
                             <CProgress>
-                              <CProgressBar 
-                                value={statistics.total > 0 ? Math.round((statistics.ticketsUltimos30Dias / statistics.total) * 100) : 0} 
+                              <CProgressBar
+                                value={
+                                  statistics.total > 0
+                                    ? Math.round(
+                                        (statistics.ticketsUltimos30Dias / statistics.total) * 100,
+                                      )
+                                    : 0
+                                }
                                 color="info"
                               />
                             </CProgress>
@@ -912,18 +1033,24 @@ const DashboardNew = () => {
                           <div className="row text-center">
                             <div className="col-4">
                               <div className="border-end">
-                                <div className="fs-5 fw-bold text-primary">{statistics.ticketsHoy || 0}</div>
+                                <div className="fs-5 fw-bold text-primary">
+                                  {statistics.ticketsHoy || 0}
+                                </div>
                                 <div className="text-muted small">Hoy</div>
                               </div>
                             </div>
                             <div className="col-4">
                               <div className="border-end">
-                                <div className="fs-5 fw-bold text-success">{statistics.ticketsEstaSeana || 0}</div>
+                                <div className="fs-5 fw-bold text-success">
+                                  {statistics.ticketsEstaSeana || 0}
+                                </div>
                                 <div className="text-muted small">Semana</div>
                               </div>
                             </div>
                             <div className="col-4">
-                              <div className="fs-5 fw-bold text-info">{statistics.ticketsEsteMes || 0}</div>
+                              <div className="fs-5 fw-bold text-info">
+                                {statistics.ticketsEsteMes || 0}
+                              </div>
                               <div className="text-muted small">Mes</div>
                             </div>
                           </div>

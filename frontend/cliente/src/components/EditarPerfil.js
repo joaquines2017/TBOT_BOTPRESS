@@ -13,7 +13,7 @@ import {
   CAlert,
   CSpinner,
   CRow,
-  CCol
+  CCol,
 } from '@coreui/react'
 import { useAuth } from '../contexts/AuthContext'
 import axios from 'axios'
@@ -28,7 +28,7 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
     apellido: '',
     email: '',
     contraseña: '',
-    confirmarContraseña: ''
+    confirmarContraseña: '',
   })
 
   // Efecto para cargar datos cuando se abre el modal
@@ -39,42 +39,45 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
         try {
           setLoading(true)
           const token = localStorage.getItem('token')
-          const response = await axios.get(`http://localhost:3003/api/usuarios/${user.id}/perfil`, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          const response = await axios.get(
+            `http://tbot_backend:3003/api/usuarios/${user.id}/perfil`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          )
           const userData = response.data
-          
+
           setFormData({
             nombre: userData.nombre || '',
             apellido: userData.apellido || '',
             email: userData.email || '',
             contraseña: '',
-            confirmarContraseña: ''
+            confirmarContraseña: '',
           })
-          
+
           console.log('Perfil cargado desde servidor:', userData)
           setError(null)
           setSuccess(false)
         } catch (error) {
           console.error('Error al cargar perfil:', error)
           setError('Error al cargar los datos del perfil')
-          
+
           // Fallback: usar datos del contexto si falla la carga
           const userData = {
             nombre: user.nombre || '',
             apellido: user.apellido || '',
             email: user.email || '',
             contraseña: '',
-            confirmarContraseña: ''
+            confirmarContraseña: '',
           }
           setFormData(userData)
         } finally {
           setLoading(false)
         }
       }
-      
+
       cargarPerfil()
     } else if (visible && !user) {
       // Si no hay usuario, limpiar el formulario
@@ -83,16 +86,16 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
         apellido: '',
         email: '',
         contraseña: '',
-        confirmarContraseña: ''
+        confirmarContraseña: '',
       })
     }
   }, [visible, user])
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }))
   }
 
@@ -118,7 +121,7 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
       const dataToSend = {
         nombre: formData.nombre.trim(),
         apellido: formData.apellido.trim(),
-        email: formData.email.trim()
+        email: formData.email.trim(),
       }
 
       // Solo incluir contraseña si se proporcionó
@@ -127,33 +130,37 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
       }
 
       const token = localStorage.getItem('token')
-      await axios.put(`http://localhost:3003/api/usuarios/${user.id}/perfil`, dataToSend, {
+      await axios.put(`http://tbot_backend:3003/api/usuarios/${user.id}/perfil`, dataToSend, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       })
-      
+
       setSuccess(true)
-      
+
       // Actualizar los datos del usuario en el contexto
       await refreshUser()
-      
+
       // Disparar evento personalizado para que otros componentes se actualicen
-      window.dispatchEvent(new CustomEvent('userProfileUpdated', { 
-        detail: { userId: user.id } 
-      }))
-      
+      window.dispatchEvent(
+        new CustomEvent('userProfileUpdated', {
+          detail: { userId: user.id },
+        }),
+      )
+
       if (onSuccess) {
         onSuccess()
       }
-      
+
       // Si se cambió la contraseña, hacer logout automático después de mostrar el mensaje
       if (formData.contraseña) {
         setTimeout(() => {
           onClose()
           // Mostrar mensaje antes del logout
           setTimeout(() => {
-            alert('Contraseña actualizada. Por seguridad, debes iniciar sesión nuevamente con tu nueva contraseña.')
+            alert(
+              'Contraseña actualizada. Por seguridad, debes iniciar sesión nuevamente con tu nueva contraseña.',
+            )
             logout()
           }, 500)
         }, 1500)
@@ -185,13 +192,12 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
           )}
           {success && (
             <CAlert color="success" className="mb-3">
-              {formData.contraseña 
+              {formData.contraseña
                 ? '✅ Perfil y contraseña actualizados exitosamente. Serás redirigido al login por seguridad.'
-                : '✅ Perfil actualizado exitosamente'
-              }
+                : '✅ Perfil actualizado exitosamente'}
             </CAlert>
           )}
-          
+
           <CRow className="mb-3">
             <CCol md={6}>
               <CFormLabel htmlFor="nombre">Nombre *</CFormLabel>

@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { 
-  CCard, 
-  CCardBody, 
-  CCardHeader, 
-  CCol, 
-  CRow, 
-  CTable, 
-  CTableBody, 
-  CTableDataCell, 
-  CTableHead, 
-  CTableHeaderCell, 
+import {
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CCol,
+  CRow,
+  CTable,
+  CTableBody,
+  CTableDataCell,
+  CTableHead,
+  CTableHeaderCell,
   CTableRow,
   CAlert,
   CSpinner,
   CBadge,
   CProgress,
-  CProgressBar
+  CProgressBar,
 } from '@coreui/react'
 import axios from 'axios'
 import * as XLSX from 'xlsx'
@@ -58,22 +58,21 @@ const ReportePersonalizado = () => {
       if (palabraClave) params.palabraClave = palabraClave
 
       console.log('📋 Parámetros de búsqueda:', params)
-      
+
       if (fechaInicio || fechaFin) {
         console.log('📅 Filtros de fecha:', { fechaInicio, fechaFin })
       }
 
-      const response = await axios.get('http://localhost:3003/api/redmine/tickets', { params })
-      
+      const response = await axios.get('http://tbot_backend:3003/api/redmine/tickets', { params })
+
       const ticketsData = response.data.issues || response.data
       console.log('📥 Tickets recibidos:', ticketsData.length)
-      
+
       setTickets(ticketsData)
       setTotalCount(response.data.total_count || ticketsData.length)
-      
+
       // Calcular estadísticas
       calculateStatistics(ticketsData)
-      
     } catch (error) {
       console.error('Error al obtener tickets:', error)
       setError('Error al obtener los tickets. Por favor, intenta nuevamente.')
@@ -88,11 +87,11 @@ const ReportePersonalizado = () => {
       porEstado: {},
       porPrioridad: {},
       porAsignado: {},
-      ticketsRecientes: 0
+      ticketsRecientes: 0,
     }
 
     // Calcular estadísticas por estado
-    ticketsData.forEach(ticket => {
+    ticketsData.forEach((ticket) => {
       // Por estado
       const estado = ticket.status?.name || 'Sin estado'
       stats.porEstado[estado] = (stats.porEstado[estado] || 0) + 1
@@ -121,17 +120,18 @@ const ReportePersonalizado = () => {
   // Exportar a Excel
   const exportarExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
-      tickets.map(ticket => ({
+      tickets.map((ticket) => ({
         ID: ticket.id,
         Asunto: ticket.subject,
         Estado: ticket.status?.name,
         Prioridad: ticket.priority?.name,
         'Asignado a': ticket.assigned_to?.name || '-',
-        Oficina: ticket.custom_fields.find(f => f.name === "Oficina")?.value || '',
-        Empleado: ticket.custom_fields.find(f => f.name === "Empleado")?.value || '',
-        'Nro de Contacto': ticket.custom_fields.find(f => f.name === "Nro de Contacto")?.value || '',
+        Oficina: ticket.custom_fields.find((f) => f.name === 'Oficina')?.value || '',
+        Empleado: ticket.custom_fields.find((f) => f.name === 'Empleado')?.value || '',
+        'Nro de Contacto':
+          ticket.custom_fields.find((f) => f.name === 'Nro de Contacto')?.value || '',
         Creado: new Date(ticket.created_on).toLocaleString('es-AR'),
-      }))
+      })),
     )
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Tickets')
@@ -148,16 +148,28 @@ const ReportePersonalizado = () => {
     const doc = new jsPDF()
     doc.text('Reporte de Tickets', 14, 10)
     autoTable(doc, {
-      head: [['ID', 'Asunto', 'Estado', 'Prioridad', 'Asignado a', 'Oficina', 'Empleado', 'Nro de Contacto', 'Creado']],
-      body: tickets.map(ticket => [
+      head: [
+        [
+          'ID',
+          'Asunto',
+          'Estado',
+          'Prioridad',
+          'Asignado a',
+          'Oficina',
+          'Empleado',
+          'Nro de Contacto',
+          'Creado',
+        ],
+      ],
+      body: tickets.map((ticket) => [
         ticket.id,
         ticket.subject,
         ticket.status?.name,
         ticket.priority?.name,
         ticket.assigned_to?.name || '-',
-        ticket.custom_fields.find(f => f.name === "Oficina")?.value || '',
-        ticket.custom_fields.find(f => f.name === "Empleado")?.value || '',
-        ticket.custom_fields.find(f => f.name === "Nro de Contacto")?.value || '',
+        ticket.custom_fields.find((f) => f.name === 'Oficina')?.value || '',
+        ticket.custom_fields.find((f) => f.name === 'Empleado')?.value || '',
+        ticket.custom_fields.find((f) => f.name === 'Nro de Contacto')?.value || '',
         new Date(ticket.created_on).toLocaleString('es-AR'),
       ]),
       startY: 20,
@@ -179,26 +191,26 @@ const ReportePersonalizado = () => {
 
   const getBadgeColor = (estado) => {
     const colors = {
-      'Nueva': 'primary',         // azul
-      'En Curso': 'warning',      // naranja/amarillo
-      'Resuelta': 'success',      // verde
-      'Rechazada': 'secondary',   // gris
-      'Cerrada': 'danger',        // rojo
-      'Pendiente': 'info',        // azul claro
-      'En Progreso': 'warning',   // naranja
-      'Asignada': 'info',         // azul claro
-      'Sin estado': 'dark'        // negro/gris oscuro
+      Nueva: 'primary', // azul
+      'En Curso': 'warning', // naranja/amarillo
+      Resuelta: 'success', // verde
+      Rechazada: 'secondary', // gris
+      Cerrada: 'danger', // rojo
+      Pendiente: 'info', // azul claro
+      'En Progreso': 'warning', // naranja
+      Asignada: 'info', // azul claro
+      'Sin estado': 'dark', // negro/gris oscuro
     }
-    return colors[estado] || 'dark'  // Cambiado de 'light' a 'dark' para mejor visibilidad
+    return colors[estado] || 'dark' // Cambiado de 'light' a 'dark' para mejor visibilidad
   }
 
   const getPriorityColor = (prioridad) => {
     const colors = {
-      'Baja': 'info',
-      'Normal': 'secondary',
-      'Alta': 'warning',
-      'Urgente': 'danger',
-      'Inmediata': 'danger'
+      Baja: 'info',
+      Normal: 'secondary',
+      Alta: 'warning',
+      Urgente: 'danger',
+      Inmediata: 'danger',
     }
     return colors[prioridad] || 'light'
   }
@@ -279,12 +291,19 @@ const ReportePersonalizado = () => {
           </button>
           <button
             className={`btn d-flex align-items-center ${mostrarFiltros ? 'btn-primary' : 'btn-light'}`}
-            onClick={() => setMostrarFiltros(f => !f)}
+            onClick={() => setMostrarFiltros((f) => !f)}
             title="Mostrar/Ocultar filtros"
             style={{ fontWeight: 'bold' }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill={mostrarFiltros ? "#fff" : "#343a40"} viewBox="0 0 16 16" style={{ marginRight: 6 }}>
-              <path d="M6 10.117V14.5a.5.5 0 0 0 .757.429l2-1.2A.5.5 0 0 0 9 13.5v-3.383l5.447-6.516A.5.5 0 0 0 14.5 3h-13a.5.5 0 0 0-.447.758L6 10.117z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill={mostrarFiltros ? '#fff' : '#343a40'}
+              viewBox="0 0 16 16"
+              style={{ marginRight: 6 }}
+            >
+              <path d="M6 10.117V14.5a.5.5 0 0 0 .757.429l2-1.2A.5.5 0 0 0 9 13.5v-3.383l5.447-6.516A.5.5 0 0 0 14.5 3h-13a.5.5 0 0 0-.447.758L6 10.117z" />
             </svg>
             Filtrar
           </button>
@@ -303,9 +322,14 @@ const ReportePersonalizado = () => {
                   type="text"
                   placeholder="ID"
                   value={id}
-                  onChange={e => setId(e.target.value)}
+                  onChange={(e) => setId(e.target.value)}
                 />
-                <select className="form-select" style={{ maxWidth: 170 }} value={estado} onChange={e => setEstado(e.target.value)}>
+                <select
+                  className="form-select"
+                  style={{ maxWidth: 170 }}
+                  value={estado}
+                  onChange={(e) => setEstado(e.target.value)}
+                >
                   <option value="">Todos los estados</option>
                   <option value="Nueva">Nueva</option>
                   <option value="En Curso">En Curso</option>
@@ -313,7 +337,12 @@ const ReportePersonalizado = () => {
                   <option value="Rechazada">Rechazada</option>
                   <option value="Cerrada">Cerrada</option>
                 </select>
-                <select className="form-select" style={{ maxWidth: 170 }} value={prioridad} onChange={e => setPrioridad(e.target.value)}>
+                <select
+                  className="form-select"
+                  style={{ maxWidth: 170 }}
+                  value={prioridad}
+                  onChange={(e) => setPrioridad(e.target.value)}
+                >
                   <option value="">Todas las prioridades</option>
                   <option value="Baja">Baja</option>
                   <option value="Normal">Normal</option>
@@ -321,20 +350,77 @@ const ReportePersonalizado = () => {
                   <option value="Urgente">Urgente</option>
                   <option value="Inmediata">Inmediata</option>
                 </select>
-                <input className="form-control" style={{ maxWidth: 160 }} type="text" placeholder="Asignado a" value={asignado} onChange={e => setAsignado(e.target.value)} />
-                <input className="form-control" style={{ maxWidth: 160 }} type="text" placeholder="Empleado" value={empleado} onChange={e => setEmpleado(e.target.value)} />
-                <input className="form-control" style={{ maxWidth: 160 }} type="text" placeholder="Oficina" value={oficina} onChange={e => setOficina(e.target.value)} />
-                <input className="form-control" style={{ maxWidth: 160 }} type="text" placeholder="Nro de Contacto" value={nroContacto} onChange={e => setNroContacto(e.target.value)} />
+                <input
+                  className="form-control"
+                  style={{ maxWidth: 160 }}
+                  type="text"
+                  placeholder="Asignado a"
+                  value={asignado}
+                  onChange={(e) => setAsignado(e.target.value)}
+                />
+                <input
+                  className="form-control"
+                  style={{ maxWidth: 160 }}
+                  type="text"
+                  placeholder="Empleado"
+                  value={empleado}
+                  onChange={(e) => setEmpleado(e.target.value)}
+                />
+                <input
+                  className="form-control"
+                  style={{ maxWidth: 160 }}
+                  type="text"
+                  placeholder="Oficina"
+                  value={oficina}
+                  onChange={(e) => setOficina(e.target.value)}
+                />
+                <input
+                  className="form-control"
+                  style={{ maxWidth: 160 }}
+                  type="text"
+                  placeholder="Nro de Contacto"
+                  value={nroContacto}
+                  onChange={(e) => setNroContacto(e.target.value)}
+                />
                 <div style={{ maxWidth: 160 }}>
-                  <label className="form-label text-muted" style={{ fontSize: '0.8rem', marginBottom: '2px' }}>Desde</label>
-                  <input className="form-control" type="date" value={fechaInicio} onChange={e => setFechaInicio(e.target.value)} />
+                  <label
+                    className="form-label text-muted"
+                    style={{ fontSize: '0.8rem', marginBottom: '2px' }}
+                  >
+                    Desde
+                  </label>
+                  <input
+                    className="form-control"
+                    type="date"
+                    value={fechaInicio}
+                    onChange={(e) => setFechaInicio(e.target.value)}
+                  />
                 </div>
                 <div style={{ maxWidth: 160 }}>
-                  <label className="form-label text-muted" style={{ fontSize: '0.8rem', marginBottom: '2px' }}>Hasta</label>
-                  <input className="form-control" type="date" value={fechaFin} onChange={e => setFechaFin(e.target.value)} />
+                  <label
+                    className="form-label text-muted"
+                    style={{ fontSize: '0.8rem', marginBottom: '2px' }}
+                  >
+                    Hasta
+                  </label>
+                  <input
+                    className="form-control"
+                    type="date"
+                    value={fechaFin}
+                    onChange={(e) => setFechaFin(e.target.value)}
+                  />
                 </div>
-                <input className="form-control" style={{ maxWidth: 180 }} type="text" placeholder="Palabra clave" value={palabraClave} onChange={e => setPalabraClave(e.target.value)} />
-                <button className="btn btn-secondary" onClick={limpiarFiltros}>Limpiar filtros</button>
+                <input
+                  className="form-control"
+                  style={{ maxWidth: 180 }}
+                  type="text"
+                  placeholder="Palabra clave"
+                  value={palabraClave}
+                  onChange={(e) => setPalabraClave(e.target.value)}
+                />
+                <button className="btn btn-secondary" onClick={limpiarFiltros}>
+                  Limpiar filtros
+                </button>
               </div>
             </CCardBody>
           </CCard>
@@ -350,7 +436,7 @@ const ReportePersonalizado = () => {
                 {error}
               </CAlert>
             )}
-            
+
             {loading ? (
               <div className="text-center py-4">
                 <CSpinner />
@@ -367,20 +453,20 @@ const ReportePersonalizado = () => {
                     <CTableHeaderCell style={{ textAlign: 'center' }}>Asignado a</CTableHeaderCell>
                     <CTableHeaderCell style={{ textAlign: 'center' }}>Oficina</CTableHeaderCell>
                     <CTableHeaderCell style={{ textAlign: 'center' }}>Empleado</CTableHeaderCell>
-                    <CTableHeaderCell style={{ textAlign: 'center' }}>Nro de Contacto</CTableHeaderCell>
+                    <CTableHeaderCell style={{ textAlign: 'center' }}>
+                      Nro de Contacto
+                    </CTableHeaderCell>
                     <CTableHeaderCell style={{ textAlign: 'center' }}>Creado</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
-                  {tickets.map(ticket => (
+                  {tickets.map((ticket) => (
                     <CTableRow key={ticket.id}>
                       <CTableDataCell>
                         <strong>#{ticket.id}</strong>
                       </CTableDataCell>
                       <CTableDataCell>
-                        <span title={ticket.subject}>
-                          {truncate(ticket.subject, 30)}
-                        </span>
+                        <span title={ticket.subject}>{truncate(ticket.subject, 30)}</span>
                       </CTableDataCell>
                       <CTableDataCell>
                         <CBadge color={getBadgeColor(ticket.status?.name)}>
@@ -394,13 +480,14 @@ const ReportePersonalizado = () => {
                       </CTableDataCell>
                       <CTableDataCell>{ticket.assigned_to?.name || '-'}</CTableDataCell>
                       <CTableDataCell>
-                        {ticket.custom_fields?.find(f => f.name === "Oficina")?.value || ''}
+                        {ticket.custom_fields?.find((f) => f.name === 'Oficina')?.value || ''}
                       </CTableDataCell>
                       <CTableDataCell>
-                        {ticket.custom_fields?.find(f => f.name === "Empleado")?.value || ''}
+                        {ticket.custom_fields?.find((f) => f.name === 'Empleado')?.value || ''}
                       </CTableDataCell>
                       <CTableDataCell>
-                        {ticket.custom_fields?.find(f => f.name === "Nro de Contacto")?.value || ''}
+                        {ticket.custom_fields?.find((f) => f.name === 'Nro de Contacto')?.value ||
+                          ''}
                       </CTableDataCell>
                       <CTableDataCell>
                         {new Date(ticket.created_on).toLocaleString('es-AR')}
@@ -410,7 +497,7 @@ const ReportePersonalizado = () => {
                 </CTableBody>
               </CTable>
             )}
-            
+
             {!loading && tickets.length === 0 && (
               <CAlert color="info" className="text-center">
                 <h5>No se encontraron tickets</h5>
