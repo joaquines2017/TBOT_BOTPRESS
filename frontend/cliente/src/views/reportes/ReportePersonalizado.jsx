@@ -63,7 +63,7 @@ const ReportePersonalizado = () => {
         console.log('📅 Filtros de fecha:', { fechaInicio, fechaFin })
       }
 
-      const response = await axios.get('http://backend:3003/api/redmine/tickets', { params })
+      const response = await axios.get('http://192.168.100.254:3003/api/redmine/tickets', { params })
 
       const ticketsData = response.data.issues || response.data
       console.log('📥 Tickets recibidos:', ticketsData.length)

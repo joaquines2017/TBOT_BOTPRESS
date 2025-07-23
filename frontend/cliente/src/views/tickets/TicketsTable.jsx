@@ -86,7 +86,7 @@ const TicketsTable = () => {
     setError(null)
 
     axios
-      .get('http://backend:3003/api/redmine/tickets')
+      .get('http://192.168.100.254:3003/api/redmine/tickets')
       .then((res) => {
         // Manejar el nuevo formato de respuesta
         const ticketsData = res.data.issues || res.data || []
@@ -100,22 +100,22 @@ const TicketsTable = () => {
       })
 
     axios
-      .get('http://backend:3003/api/redmine/prioridades')
+      .get('http://192.168.100.254:3003/api/redmine/prioridades')
       .then((res) => setPrioridades(res.data))
       .catch((err) => console.error('Error al obtener prioridades:', err))
 
     axios
-      .get('http://backend:3003/api/redmine/miembros')
+      .get('http://192.168.100.254:3003/api/redmine/miembros')
       .then((res) => setMiembros(res.data))
       .catch((err) => console.error('Error al obtener miembros:', err))
   }, [])
 
   const handleStatusChange = async (ticketId, newStatusId) => {
     try {
-      await axios.put(`http://backend:3003/api/redmine/tickets/${ticketId}`, {
+      await axios.put(`http://192.168.100.254:3003/api/redmine/tickets/${ticketId}`, {
         status_id: newStatusId,
       })
-      const res = await axios.get('http://backend:3003/api/redmine/tickets')
+      const res = await axios.get('http://192.168.100.254:3003/api/redmine/tickets')
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
     } catch (err) {
@@ -125,10 +125,10 @@ const TicketsTable = () => {
 
   const handlePriorityChange = async (ticketId, newPriorityId) => {
     try {
-      await axios.put(`http://backend:3003/api/redmine/tickets/${ticketId}`, {
+      await axios.put(`http://192.168.100.254:3003/api/redmine/tickets/${ticketId}`, {
         priority_id: newPriorityId,
       })
-      const res = await axios.get('http://backend:3003/api/redmine/tickets')
+      const res = await axios.get('http://192.168.100.254:3003/api/redmine/tickets')
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
     } catch (err) {
@@ -138,10 +138,10 @@ const TicketsTable = () => {
 
   const handleAssignedChange = async (ticketId, newAssignedId) => {
     try {
-      await axios.put(`http://backend:3003/api/redmine/tickets/${ticketId}`, {
+      await axios.put(`http://192.168.100.254:3003/api/redmine/tickets/${ticketId}`, {
         assigned_to_id: newAssignedId,
       })
-      const res = await axios.get('http://backend:3003/api/redmine/tickets')
+      const res = await axios.get('http://192.168.100.254:3003/api/redmine/tickets')
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
     } catch (err) {
