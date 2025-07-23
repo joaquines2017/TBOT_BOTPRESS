@@ -40,9 +40,9 @@ export const AuthProvider = ({ children }) => {
 
         try {
           console.log(
-            '🔍 [AuthContext] Intentando verificar token en: http://192.168.100.254:3003/api/auth/verify',
+            '🔍 [AuthContext] Intentando verificar token en: http://192.168.100.250:3003/api/auth/verify',
           )
-          const response = await axios.get('http://192.168.100.254:3003/api/auth/verify')
+          const response = await axios.get('http://192.168.100.250:3003/api/auth/verify')
           console.log('✅ [AuthContext] Verificación exitosa:', response.data.user)
           setUser(response.data.user)
         } catch (error) {
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
           ) {
             console.log('🔌 [AuthContext] Servidor no disponible - Error de conexión')
             alert(
-              '⚠️ No se puede conectar al servidor. Verifique que el servidor esté ejecutándose en http://192.168.100.254:3003',
+              '⚠️ No se puede conectar al servidor. Verifique que el servidor esté ejecutándose en http://192.168.100.250:3003',
             )
             localStorage.clear()
             setUser(null)
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('🔐 [AuthContext] Iniciando login para:', credentials.usuario)
 
-      const response = await axios.post('http://192.168.100.254:3003/api/auth/login', credentials)
+      const response = await axios.post('http://192.168.100.250:3003/api/auth/login', credentials)
       const { token, user: userData } = response.data
 
       console.log('✅ [AuthContext] Login exitoso:', userData)
@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }) => {
 
       // Verificar datos del servidor después del login para asegurar consistencia
       try {
-        const verifyResponse = await axios.get('http://192.168.100.254:3003/api/auth/verify')
+        const verifyResponse = await axios.get('http://192.168.100.250:3003/api/auth/verify')
         console.log('✅ [AuthContext] Verificación post-login:', verifyResponse.data.user)
         setUser(verifyResponse.data.user)
       } catch (verifyError) {
@@ -178,7 +178,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token')
       if (token) {
-        const response = await axios.get('http://192.168.100.254:3003/api/auth/verify')
+        const response = await axios.get('http://192.168.100.250:3003/api/auth/verify')
         console.log('🔄 [AuthContext] Usuario actualizado:', response.data.user)
         setUser(response.data.user)
         return response.data.user

@@ -8,7 +8,7 @@ require('./index.js');
 setTimeout(async () => {
   try {
     const axios = require('axios');
-    const response = await axios.get('http://192.168.100.254:3003/api/auth/check', { timeout: 2000 });
+    const response = await axios.get('http://192.168.100.250:3003/api/auth/check', { timeout: 2000 });
     console.log('✅ Servidor respondiendo correctamente');
   } catch (error) {
     console.log('⚠️ Servidor iniciado pero revisar endpoints');
