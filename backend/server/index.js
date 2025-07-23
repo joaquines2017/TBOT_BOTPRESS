@@ -26,7 +26,7 @@ const writeLog = (message) => {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3002', 'http://192.168.100.250', 'https://incidentes.mpftucuman.gob.ar:3001'],
+  origin: ['http://localhost:3002', 'http://192.168.100.250', 'https://tbotmpftucuman.ddns.net', 'http://tbotmpftucuman.ddns.net'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
