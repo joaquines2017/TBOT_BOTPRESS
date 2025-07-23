@@ -82,7 +82,7 @@ const Dashboard = () => {
       console.log('🔄 Iniciando fetch de datos del dashboard...')
 
       // Obtener todos los tickets
-      const response = await axios.get('http://backend:3003/api/redmine/tickets?limit=2000')
+      const response = await axios.get('http://192.168.100.254:3003/api/redmine/tickets?limit=2000')
       console.log('✅ Respuesta recibida:', response.data)
 
       const ticketsData = response.data.issues || []
