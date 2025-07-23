@@ -86,5 +86,5 @@ app.use('/api/redmine', ticketRoutes)
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en http://tbot_backend:${PORT}`);
+  console.log(`✅ Servidor corriendo en http://backend:${PORT}`);
 });
