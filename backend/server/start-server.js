@@ -8,7 +8,7 @@ require('./index.js');
 setTimeout(async () => {
   try {
     const axios = require('axios');
-    const response = await axios.get('http://localhost:3003/api/auth/check', { timeout: 2000 });
+    const response = await axios.get('http://tbot_backend:3003/api/auth/check', { timeout: 2000 });
     console.log('✅ Servidor respondiendo correctamente');
   } catch (error) {
     console.log('⚠️ Servidor iniciado pero revisar endpoints');
