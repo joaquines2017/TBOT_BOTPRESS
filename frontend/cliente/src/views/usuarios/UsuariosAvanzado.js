@@ -95,8 +95,8 @@ const UsuariosAvanzado = () => {
     setLoading(true)
     try {
       const [activosRes, inactivosRes] = await Promise.all([
-        axios.get('http://tbot_backend:3003/api/usuarios'),
-        axios.get('http://tbot_backend:3003/api/usuarios/inactivos'),
+        axios.get('http://backend:3003/api/usuarios'),
+        axios.get('http://backend:3003/api/usuarios/inactivos'),
       ])
 
       setUsuarios(activosRes.data)
@@ -116,12 +116,12 @@ const UsuariosAvanzado = () => {
 
     try {
       if (modalType === 'crear') {
-        await axios.post('http://tbot_backend:3003/api/usuarios', {
+        await axios.post('http://backend:3003/api/usuarios', {
           ...formData,
           usuarioActual: currentUser.id,
         })
       } else if (modalType === 'editar') {
-        await axios.put(`http://tbot_backend:3003/api/usuarios/${selectedUser.id}`, {
+        await axios.put(`http://backend:3003/api/usuarios/${selectedUser.id}`, {
           ...formData,
           usuarioActual: currentUser.id,
         })
@@ -140,7 +140,7 @@ const UsuariosAvanzado = () => {
   const handleDesactivar = async () => {
     setLoading(true)
     try {
-      await axios.put(`http://tbot_backend:3003/api/usuarios/${selectedUser.id}/desactivar`, {
+      await axios.put(`http://backend:3003/api/usuarios/${selectedUser.id}/desactivar`, {
         observaciones: formData.observaciones,
         usuarioActual: currentUser.id,
       })
@@ -158,7 +158,7 @@ const UsuariosAvanzado = () => {
   const handleReactivar = async () => {
     setLoading(true)
     try {
-      await axios.put(`http://tbot_backend:3003/api/usuarios/${selectedUser.id}/reactivar`, {
+      await axios.put(`http://backend:3003/api/usuarios/${selectedUser.id}/reactivar`, {
         observaciones: formData.observaciones,
         usuarioActual: currentUser.id,
       })
@@ -176,9 +176,7 @@ const UsuariosAvanzado = () => {
   const fetchAuditoria = async (usuarioId) => {
     setLoading(true)
     try {
-      const response = await axios.get(
-        `http://tbot_backend:3003/api/usuarios/${usuarioId}/auditoria`,
-      )
+      const response = await axios.get(`http://backend:3003/api/usuarios/${usuarioId}/auditoria`)
       setAuditoria(response.data)
     } catch (err) {
       console.error('Error al cargar auditoría:', err)

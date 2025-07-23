@@ -74,7 +74,9 @@ const DashboardNew = () => {
 
     try {
       // Obtener todos los tickets
-      const response = await axios.get('http://tbot_backend:3001/api/redmine/tickets?limit=2000')
+      const response = await axios.get(
+        'https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets?limit=2000',
+      )
       const ticketsData = response.data.issues || []
       setTickets(ticketsData)
 

@@ -40,7 +40,7 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
           setLoading(true)
           const token = localStorage.getItem('token')
           const response = await axios.get(
-            `http://tbot_backend:3003/api/usuarios/${user.id}/perfil`,
+            `http://backend:3003/api/usuarios/${user.id}/perfil`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -130,7 +130,7 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
       }
 
       const token = localStorage.getItem('token')
-      await axios.put(`http://tbot_backend:3003/api/usuarios/${user.id}/perfil`, dataToSend, {
+      await axios.put(`http://backend:3003/api/usuarios/${user.id}/perfil`, dataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

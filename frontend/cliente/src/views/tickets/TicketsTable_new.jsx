@@ -100,12 +100,12 @@ const TicketsTable = () => {
       })
 
     axios
-      .get('http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/prioridades')
+      .get('https://incidentes.mpftucuman.gob.ar:3001/api/redmine/prioridades')
       .then((res) => setPrioridades(res.data))
       .catch((err) => console.error('Error al obtener prioridades:', err))
 
     axios
-      .get('http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/miembros')
+      .get('https://incidentes.mpftucuman.gob.ar:3001/api/redmine/miembros')
       .then((res) => setMiembros(res.data))
       .catch((err) => console.error('Error al obtener miembros:', err))
   }, [])
@@ -113,11 +113,11 @@ const TicketsTable = () => {
   const handleStatusChange = async (ticketId, newStatusId) => {
     try {
       await axios.put(
-        `http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets/${ticketId}`,
+        `https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets/${ticketId}`,
         { status_id: newStatusId },
       )
       const res = await axios.get(
-        'http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets',
+        'https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets',
       )
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
@@ -129,11 +129,11 @@ const TicketsTable = () => {
   const handlePriorityChange = async (ticketId, newPriorityId) => {
     try {
       await axios.put(
-        `http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets/${ticketId}`,
+        `https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets/${ticketId}`,
         { priority_id: newPriorityId },
       )
       const res = await axios.get(
-        'http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets',
+        'https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets',
       )
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
@@ -145,11 +145,11 @@ const TicketsTable = () => {
   const handleAssignedChange = async (ticketId, newAssignedId) => {
     try {
       await axios.put(
-        `http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets/${ticketId}`,
+        `https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets/${ticketId}`,
         { assigned_to_id: newAssignedId },
       )
       const res = await axios.get(
-        'http://https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets',
+        'https://incidentes.mpftucuman.gob.ar:3001/api/redmine/tickets',
       )
       const ticketsData = res.data.issues || res.data || []
       setTickets(ticketsData)
