@@ -26,7 +26,13 @@ const writeLog = (message) => {
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:3002', 'http://192.168.100.250', 'https://tbotmpftucuman.ddns.net', 'http://tbotmpftucuman.ddns.net'],
+  origin: [
+    'http://localhost:3002',          // Desarrollo local (frontend React)
+    'http://192.168.100.250',         // LAN HTTP
+    'https://192.168.100.250',        // LAN HTTPS  
+    'https://tbotmpftucuman.ddns.net', // Internet HTTPS
+    'http://tbotmpftucuman.ddns.net'  // LAN HTTP via DDNS
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
