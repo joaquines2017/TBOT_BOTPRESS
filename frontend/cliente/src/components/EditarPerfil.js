@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import apiClient from '../config/api'
 import {
   CModal,
   CModalBody,
@@ -38,15 +39,7 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
       const cargarPerfil = async () => {
         try {
           setLoading(true)
-          const token = localStorage.getItem('token')
-          const response = await axios.get(
-            `http://192.168.100.250:3003/api/usuarios/${user.id}/perfil`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            },
-          )
+          const response = await apiClient.get(`/usuarios/${user.id}/perfil`)
           const userData = response.data
 
           setFormData({
@@ -130,11 +123,7 @@ const EditarPerfil = ({ visible, onClose, onSuccess }) => {
       }
 
       const token = localStorage.getItem('token')
-      await axios.put(`http://192.168.100.250:3003/api/usuarios/${user.id}/perfil`, dataToSend, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      await apiClient.put(`/usuarios/${user.id}/perfil`, dataToSend)
 
       setSuccess(true)
 

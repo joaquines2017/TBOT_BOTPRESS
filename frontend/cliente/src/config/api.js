@@ -5,24 +5,35 @@ import axios from 'axios'
 const getApiBaseUrl = () => {
   // Prioridad: variable de entorno -> detección automática según protocolo
   const envUrl = import.meta.env.VITE_API_BASE_URL
-
+  
+  console.log('🔧 [API Config] Variable de entorno VITE_API_BASE_URL:', envUrl)
+  
   if (envUrl) {
+    console.log('✅ [API Config] Usando URL del .env:', envUrl)
     return envUrl
   }
-
+  
   // Detección automática basada en el protocolo de la página actual
   const protocol = window.location.protocol
   const hostname = window.location.hostname
-
+  
+  console.log('🔧 [API Config] Detección automática - Protocol:', protocol, 'Hostname:', hostname)
+  
   if (protocol === 'https:') {
     // Si estamos en HTTPS, usar HTTPS para el backend también
     if (hostname === 'tbotmpftucuman.ddns.net') {
-      return 'https://tbotmpftucuman.ddns.net/api'
+      const url = 'https://tbotmpftucuman.ddns.net/api'
+      console.log('✅ [API Config] Usando URL HTTPS para dominio:', url)
+      return url
     }
-    return 'https://192.168.100.250:3003/api'
+    const url = 'https://192.168.100.250:3003/api'
+    console.log('✅ [API Config] Usando URL HTTPS para IP:', url)
+    return url
   } else {
     // Si estamos en HTTP, usar HTTP
-    return 'http://192.168.100.250:3003/api'
+    const url = 'http://192.168.100.250:3003/api'
+    console.log('✅ [API Config] Usando URL HTTP:', url)
+    return url
   }
 }
 
@@ -81,7 +92,7 @@ export const usuariosAPI = {
 }
 
 export const redmineAPI = {
-  getTickets: () => apiClient.get('/redmine/tickets'),
+  getTickets: (params) => apiClient.get('/redmine/tickets', { params }),
   getPrioridades: () => apiClient.get('/redmine/prioridades'),
   getMiembros: () => apiClient.get('/redmine/miembros'),
   updateTicket: (id, data) => apiClient.put(`/redmine/tickets/${id}`, data),

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { redmineAPI } from '../../config/api'
 import {
   CCard,
   CCardBody,
@@ -63,9 +64,7 @@ const ReportePersonalizado = () => {
         console.log('📅 Filtros de fecha:', { fechaInicio, fechaFin })
       }
 
-      const response = await axios.get('http://192.168.100.250:3003/api/redmine/tickets', {
-        params,
-      })
+      const response = await redmineAPI.getTickets(params)
 
       const ticketsData = response.data.issues || response.data
       console.log('📥 Tickets recibidos:', ticketsData.length)

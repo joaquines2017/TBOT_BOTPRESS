@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { usuariosAPI } from '../../config/api'
+import apiClient from '../../config/api'
 import {
   CCard,
   CCardBody,
@@ -138,48 +139,36 @@ const UsuariosAvanzado = () => {
     }
   }
 
-  const handleDesactivar = async () => {
-    setLoading(true)
+  const handleDesactivar = async (userId) => {
     try {
-      await axios.put(`http://192.168.100.250:3003/api/usuarios/${selectedUser.id}/desactivar`, {
-        observaciones: formData.observaciones,
+      await apiClient.put(`/usuarios/${userId}/desactivar`, {
         usuarioActual: currentUser.id,
       })
-
       await fetchUsuarios()
-      closeModal()
+      alert('Usuario desactivado exitosamente')
     } catch (err) {
       console.error('Error al desactivar usuario:', err)
       setError('Error al desactivar usuario')
-    } finally {
-      setLoading(false)
     }
   }
 
-  const handleReactivar = async () => {
-    setLoading(true)
+  const handleReactivar = async (userId) => {
     try {
-      await axios.put(`http://192.168.100.250:3003/api/usuarios/${selectedUser.id}/reactivar`, {
-        observaciones: formData.observaciones,
+      await apiClient.put(`/usuarios/${userId}/reactivar`, {
         usuarioActual: currentUser.id,
       })
-
       await fetchUsuarios()
-      closeModal()
+      alert('Usuario reactivado exitosamente')
     } catch (err) {
       console.error('Error al reactivar usuario:', err)
       setError('Error al reactivar usuario')
-    } finally {
-      setLoading(false)
     }
   }
 
   const fetchAuditoria = async (usuarioId) => {
     setLoading(true)
     try {
-      const response = await axios.get(
-        `http://192.168.100.250:3003/api/usuarios/${usuarioId}/auditoria`,
-      )
+      const response = await apiClient.get(`/usuarios/${usuarioId}/auditoria`)
       setAuditoria(response.data)
     } catch (err) {
       console.error('Error al cargar auditoría:', err)

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { redmineAPI } from '../../config/api'
 import { useNavigate } from 'react-router-dom'
 import {
   CCol,
@@ -82,7 +83,7 @@ const Dashboard = () => {
       console.log('🔄 Iniciando fetch de datos del dashboard...')
 
       // Obtener todos los tickets
-      const response = await axios.get('http://192.168.100.250:3003/api/redmine/tickets?limit=2000')
+      const response = await redmineAPI.getTickets({ limit: 2000 })
       console.log('✅ Respuesta recibida:', response.data)
 
       const ticketsData = response.data.issues || []
