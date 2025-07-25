@@ -26,13 +26,21 @@ const getApiBaseUrl = () => {
       console.log('✅ [API Config] Usando URL HTTPS para dominio:', url)
       return url
     }
-    const url = 'https://192.168.100.250:3003/api'
+    // Fallback para HTTPS con IP (poco probable pero por si acaso)
+    const url = 'https://192.168.100.250/api'
     console.log('✅ [API Config] Usando URL HTTPS para IP:', url)
     return url
   } else {
-    // Si estamos en HTTP, usar HTTP
+    // Si estamos en HTTP (desarrollo local o LAN)
+    if (hostname === '192.168.100.250' || hostname === 'tbotmpftucuman.ddns.net') {
+      // Usar el proxy de Nginx en el host
+      const url = `http://${hostname}/api`
+      console.log('✅ [API Config] Usando URL HTTP con proxy Nginx:', url)
+      return url
+    }
+    // Fallback directo al contenedor (desarrollo local)
     const url = 'http://192.168.100.250:3003/api'
-    console.log('✅ [API Config] Usando URL HTTP:', url)
+    console.log('✅ [API Config] Usando URL HTTP directa al contenedor:', url)
     return url
   }
 }
