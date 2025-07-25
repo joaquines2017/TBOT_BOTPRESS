@@ -1,17 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
-
-// Configurar interceptor para manejar errores automáticamente
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-      console.warn('🔄 Servidor no disponible, usando modo desarrollo')
-      return Promise.reject(error)
-    }
-    return Promise.reject(error)
-  },
-)
+import apiClient, { authAPI, API_BASE_URL } from '../config/api'
 
 const AuthContext = createContext()
 
@@ -33,16 +22,19 @@ export const AuthProvider = ({ children }) => {
 
       console.log('🔄 [AuthContext] Inicializando autenticación:', {
         token: token ? 'presente' : 'ausente',
+        apiBaseUrl: API_BASE_URL,
       })
 
       if (token) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
         try {
           console.log(
-            '🔍 [AuthContext] Intentando verificar token en: http://192.168.100.250:3003/api/auth/verify',
+            '🔍 [AuthContext] Intentando verificar token en:',
+            `${API_BASE_URL}/auth/verify`,
           )
-          const response = await axios.get('http://192.168.100.250:3003/api/auth/verify')
+          const response = await authAPI.verify()
           console.log('✅ [AuthContext] Verificación exitosa:', response.data.user)
           setUser(response.data.user)
         } catch (error) {
@@ -60,7 +52,7 @@ export const AuthProvider = ({ children }) => {
           ) {
             console.log('🔌 [AuthContext] Servidor no disponible - Error de conexión')
             alert(
-              '⚠️ No se puede conectar al servidor. Verifique que el servidor esté ejecutándose en http://192.168.100.250:3003',
+              `⚠️ No se puede conectar al servidor. Verifique que el servidor esté ejecutándose en ${API_BASE_URL}`,
             )
             localStorage.clear()
             setUser(null)
@@ -117,13 +109,14 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('🔐 [AuthContext] Iniciando login para:', credentials.usuario)
 
-      const response = await axios.post('http://192.168.100.250:3003/api/auth/login', credentials)
+      const response = await authAPI.login(credentials)
       const { token, user: userData } = response.data
 
       console.log('✅ [AuthContext] Login exitoso:', userData)
 
       // Configurar axios ANTES de guardar
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
       // Guardar en localStorage
       localStorage.setItem('token', token)
@@ -134,7 +127,7 @@ export const AuthProvider = ({ children }) => {
 
       // Verificar datos del servidor después del login para asegurar consistencia
       try {
-        const verifyResponse = await axios.get('http://192.168.100.250:3003/api/auth/verify')
+        const verifyResponse = await authAPI.verify()
         console.log('✅ [AuthContext] Verificación post-login:', verifyResponse.data.user)
         setUser(verifyResponse.data.user)
       } catch (verifyError) {
@@ -178,7 +171,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const token = localStorage.getItem('token')
       if (token) {
-        const response = await axios.get('http://192.168.100.250:3003/api/auth/verify')
+        const response = await authAPI.verify()
         console.log('🔄 [AuthContext] Usuario actualizado:', response.data.user)
         setUser(response.data.user)
         return response.data.user

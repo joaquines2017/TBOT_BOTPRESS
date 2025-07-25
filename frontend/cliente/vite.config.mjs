@@ -44,7 +44,7 @@ export default defineConfig(() => {
       host: '0.0.0.0',
       headers: {
         'Content-Security-Policy':
-          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' http://192.168.100.250:3003 https://incidentes.mpftucuman.gob.ar;",
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://tbotmpftucuman.ddns.net https://incidentes.mpftucuman.gob.ar;",
       },
       proxy: {
         // https://vitejs.dev/config/server-options.html

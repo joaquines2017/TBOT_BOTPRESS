@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { usuariosAPI } from '../../config/api'
 import {
   CCard,
   CCardBody,
@@ -43,7 +45,6 @@ import {
   cilUserFollow,
   cilLockLocked,
 } from '@coreui/icons'
-import axios from 'axios'
 import { useAuth } from '../../contexts/AuthContext'
 import AdminRoute from '../../components/AdminRoute'
 
@@ -95,8 +96,8 @@ const UsuariosAvanzado = () => {
     setLoading(true)
     try {
       const [activosRes, inactivosRes] = await Promise.all([
-        axios.get('http://192.168.100.250:3003/api/usuarios'),
-        axios.get('http://192.168.100.250:3003/api/usuarios/inactivos'),
+        usuariosAPI.getAll(),
+        usuariosAPI.getInactivos(),
       ])
 
       setUsuarios(activosRes.data)
@@ -116,12 +117,12 @@ const UsuariosAvanzado = () => {
 
     try {
       if (modalType === 'crear') {
-        await axios.post('http://192.168.100.250:3003/api/usuarios', {
+        await usuariosAPI.create({
           ...formData,
           usuarioActual: currentUser.id,
         })
       } else if (modalType === 'editar') {
-        await axios.put(`http://192.168.100.250:3003/api/usuarios/${selectedUser.id}`, {
+        await usuariosAPI.update(selectedUser.id, {
           ...formData,
           usuarioActual: currentUser.id,
         })
