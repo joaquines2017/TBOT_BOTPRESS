@@ -5,15 +5,15 @@ import axios from 'axios'
 const getApiBaseUrl = () => {
   // Prioridad: variable de entorno -> detección automática según protocolo
   const envUrl = import.meta.env.VITE_API_BASE_URL
-  
+
   if (envUrl) {
     return envUrl
   }
-  
+
   // Detección automática basada en el protocolo de la página actual
   const protocol = window.location.protocol
   const hostname = window.location.hostname
-  
+
   if (protocol === 'https:') {
     // Si estamos en HTTPS, usar HTTPS para el backend también
     if (hostname === 'tbotmpftucuman.ddns.net') {
@@ -33,8 +33,8 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 })
 
 // Interceptor para manejar errores automáticamente
@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
       return Promise.reject(error)
     }
     return Promise.reject(error)
-  }
+  },
 )
 
 // Interceptor para agregar token automáticamente si existe
@@ -60,7 +60,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error)
-  }
+  },
 )
 
 export default apiClient
@@ -69,7 +69,7 @@ export default apiClient
 export const authAPI = {
   login: (credentials) => apiClient.post('/auth/login', credentials),
   verify: () => apiClient.get('/auth/verify'),
-  logout: () => apiClient.post('/auth/logout')
+  logout: () => apiClient.post('/auth/logout'),
 }
 
 export const usuariosAPI = {
@@ -77,14 +77,14 @@ export const usuariosAPI = {
   getInactivos: () => apiClient.get('/usuarios/inactivos'),
   create: (data) => apiClient.post('/usuarios', data),
   update: (id, data) => apiClient.put(`/usuarios/${id}`, data),
-  delete: (id) => apiClient.delete(`/usuarios/${id}`)
+  delete: (id) => apiClient.delete(`/usuarios/${id}`),
 }
 
 export const redmineAPI = {
   getTickets: () => apiClient.get('/redmine/tickets'),
   getPrioridades: () => apiClient.get('/redmine/prioridades'),
   getMiembros: () => apiClient.get('/redmine/miembros'),
-  updateTicket: (id, data) => apiClient.put(`/redmine/tickets/${id}`, data)
+  updateTicket: (id, data) => apiClient.put(`/redmine/tickets/${id}`, data),
 }
 
 console.log('🌐 API configurada con URL base:', API_BASE_URL)
