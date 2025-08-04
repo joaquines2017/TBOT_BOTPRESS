@@ -282,6 +282,19 @@ const ReportePersonalizado = () => {
         styles: { fontSize: 9 },
         headStyles: { fillColor: [44, 90, 160] },
         margin: { left: margin, right: margin },
+        didDrawPage: function (data) {
+          // Pie de página con fecha/hora y número de página
+          const pageHeight = doc.internal.pageSize.getHeight()
+          const fechaHoraReporte = new Date().toLocaleString('es-AR')
+          
+          // Fecha y hora en la esquina izquierda
+          doc.setFontSize(8)
+          doc.setTextColor(100, 100, 100)
+          doc.text(`Generado: ${fechaHoraReporte}`, margin, pageHeight - 10)
+          
+          // Número de página en la esquina derecha
+          doc.text(`Página ${data.pageNumber}`, pageWidth - margin - 20, pageHeight - 10)
+        },
       })
 
       doc.save('reporte_tickets.pdf')
