@@ -1,3 +1,4 @@
+//reporte personalizado con logo
 import React, { useState, useEffect, useRef } from 'react'
 import { redmineAPI } from '../../config/api'
 import {
