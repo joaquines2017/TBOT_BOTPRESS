@@ -1,4 +1,4 @@
-//reporte personalizado con logoooo
+//reporte personalizado con logoo
 import React, { useState, useEffect, useRef } from 'react'
 import { redmineAPI } from '../../config/api'
 import {
