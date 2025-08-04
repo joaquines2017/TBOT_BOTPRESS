@@ -22,6 +22,7 @@ import axios from 'axios'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import logoMPF from '../../assets/images/mpf-logo.png' // Debe ser PNG/JPG, no SVG
 
 const ReportePersonalizado = () => {
   const [tickets, setTickets] = useState([])
@@ -120,20 +121,73 @@ const ReportePersonalizado = () => {
   // Función para exportar a Excel/PDF
   // Exportar a Excel
   const exportarExcel = () => {
-    const ws = XLSX.utils.json_to_sheet(
-      tickets.map((ticket) => ({
-        ID: ticket.id,
-        Asunto: ticket.subject,
-        Estado: ticket.status?.name,
-        Prioridad: ticket.priority?.name,
-        'Asignado a': ticket.assigned_to?.name || '-',
-        Oficina: ticket.custom_fields.find((f) => f.name === 'Oficina')?.value || '',
-        Empleado: ticket.custom_fields.find((f) => f.name === 'Empleado')?.value || '',
-        'Nro de Contacto':
-          ticket.custom_fields.find((f) => f.name === 'Nro de Contacto')?.value || '',
-        Creado: new Date(ticket.created_on).toLocaleString('es-AR'),
-      })),
-    )
+    const data = tickets.map((ticket) => ({
+      ID: ticket.id,
+      Asunto: ticket.subject,
+      Estado: ticket.status?.name,
+      Prioridad: ticket.priority?.name,
+      'Asignado a': ticket.assigned_to?.name || '-',
+      Oficina: ticket.custom_fields.find((f) => f.name === 'Oficina')?.value || '',
+      Empleado: ticket.custom_fields.find((f) => f.name === 'Empleado')?.value || '',
+      'Nro de Contacto': ticket.custom_fields.find((f) => f.name === 'Nro de Contacto')?.value || '',
+      Creado: new Date(ticket.created_on).toLocaleString('es-AR'),
+    }))
+
+    // Encabezado institucional en una sola celda, grande y negrita
+    const ws = XLSX.utils.aoa_to_sheet([
+      // Fila 1: MPF - Ministerio Público Fiscal Tucumán (centrado y grande)
+      ['MPF - Ministerio Público Fiscal Tucumán', '', '', '', '', '', '', '', ''],
+      // Fila 2: vacío
+      [],
+      // Fila 3: REPORTES centrado
+      ['', '', 'REPORTES', '', '', '', '', '', ''],
+      // Fila 4: Encabezados de tabla
+      [
+        'ID', 'Asunto', 'Estado', 'Prioridad', 'Asignado a', 'Oficina', 'Empleado', 'Nro de Contacto', 'Creado'
+      ],
+      // ...los datos se agregan después
+    ])
+
+    // Combinar celdas para centrar el título institucional
+    ws['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // A1:I1
+      { s: { r: 2, c: 2 }, e: { r: 2, c: 6 } }, // REPORTES (C3:G3)
+    ]
+
+    // Insertar los datos a partir de la fila 5 (índice 4)
+    XLSX.utils.sheet_add_json(ws, data, { origin: 'A5', skipHeader: true })
+
+    // Ajustar ancho de columnas (opcional)
+    ws['!cols'] = [
+      { wch: 6 },  // ID
+      { wch: 30 }, // Asunto
+      { wch: 12 }, // Estado
+      { wch: 12 }, // Prioridad
+      { wch: 20 }, // Asignado a
+      { wch: 20 }, // Oficina
+      { wch: 20 }, // Empleado
+      { wch: 18 }, // Nro de Contacto
+      { wch: 22 }, // Creado
+    ]
+
+    // Estilo para el encabezado institucional (solo visible en Excel de escritorio)
+    ws['A1'].s = {
+      font: { sz: 22, bold: true }, // tamaño mayor y negrita
+      alignment: { horizontal: "center", vertical: "center" }
+    }
+    // Centrar y resaltar toda la fila combinada
+    for (let col of ['B1','C1','D1','E1','F1','G1','H1','I1']) {
+      ws[col] = ws[col] || {};
+      ws[col].s = {
+        font: { sz: 22, bold: true },
+        alignment: { horizontal: "center", vertical: "center" }
+      }
+    }
+    ws['C3'].s = {
+      font: { sz: 14, bold: true },
+      alignment: { horizontal: "center" }
+    }
+
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Tickets')
     XLSX.writeFile(wb, 'reporte_tickets.xlsx')
@@ -141,41 +195,100 @@ const ReportePersonalizado = () => {
 
   // Exportar a PDF
   const exportarPDF = () => {
-    console.log('Exportando PDF', tickets)
     if (!tickets.length) {
       alert('No hay datos para exportar')
       return
     }
-    const doc = new jsPDF()
-    doc.text('Reporte de Tickets', 14, 10)
-    autoTable(doc, {
-      head: [
-        [
-          'ID',
-          'Asunto',
-          'Estado',
-          'Prioridad',
-          'Asignado a',
-          'Oficina',
-          'Empleado',
-          'Nro de Contacto',
-          'Creado',
+    try {
+      console.log('Exportando PDF', tickets)
+      // Usa landscape para tablas anchas
+      const doc = new jsPDF({ orientation: 'landscape' })
+      const pageWidth = doc.internal.pageSize.getWidth()
+      const margin = 15
+
+      // Encabezado institucional
+      doc.setFontSize(22)
+      doc.setTextColor(44, 90, 160) // Azul institucional
+      doc.text('MPF', pageWidth / 2, 15, { align: 'center' })
+
+      doc.setFontSize(13)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Ministerio Público Fiscal', pageWidth / 2, 22, { align: 'center' })
+
+      doc.setFontSize(11)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Tucumán', pageWidth / 2, 28, { align: 'center' })
+
+      // Logo (opcional, esquina superior derecha)
+      try {
+        doc.addImage(logoMPF, 'PNG', pageWidth - 60, 8, 45, 20)
+      } catch (imgErr) {
+        console.warn('No se pudo cargar el logo en el PDF:', imgErr)
+      }
+
+      // Título del reporte
+      doc.setFontSize(16)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Reporte de Tickets', margin, 40)
+
+      // Filtros aplicados
+      doc.setFontSize(10)
+      doc.text(
+        `Filtros aplicados: ${[
+          id && `ID: ${id}`,
+          estado && `Estado: ${estado}`,
+          prioridad && `Prioridad: ${prioridad}`,
+          asignado && `Asignado a: ${asignado}`,
+          empleado && `Empleado: ${empleado}`,
+          oficina && `Oficina: ${oficina}`,
+          nroContacto && `Nro de Contacto: ${nroContacto}`,
+          fechaInicio && `Desde: ${fechaInicio}`,
+          fechaFin && `Hasta: ${fechaFin}`,
+          palabraClave && `Palabra clave: ${palabraClave}`,
+        ]
+          .filter(Boolean)
+          .join(' | ') || 'Sin filtros'}`,
+        margin,
+        48,
+      )
+
+      autoTable(doc, {
+        head: [
+          [
+            'ID',
+            'Asunto',
+            'Estado',
+            'Prioridad',
+            'Asignado a',
+            'Oficina',
+            'Empleado',
+            'Nro de Contacto',
+            'Creado',
+          ],
         ],
-      ],
-      body: tickets.map((ticket) => [
-        ticket.id,
-        ticket.subject,
-        ticket.status?.name,
-        ticket.priority?.name,
-        ticket.assigned_to?.name || '-',
-        ticket.custom_fields.find((f) => f.name === 'Oficina')?.value || '',
-        ticket.custom_fields.find((f) => f.name === 'Empleado')?.value || '',
-        ticket.custom_fields.find((f) => f.name === 'Nro de Contacto')?.value || '',
-        new Date(ticket.created_on).toLocaleString('es-AR'),
-      ]),
-      startY: 20,
-    })
-    doc.save('reporte_tickets.pdf')
+        body: tickets.map((ticket) => [
+          ticket.id,
+          ticket.subject,
+          ticket.status?.name,
+          ticket.priority?.name,
+          ticket.assigned_to?.name || '-',
+          ticket.custom_fields.find((f) => f.name === 'Oficina')?.value || '',
+          ticket.custom_fields.find((f) => f.name === 'Empleado')?.value || '',
+          ticket.custom_fields.find((f) => f.name === 'Nro de Contacto')?.value || '',
+          new Date(ticket.created_on).toLocaleString('es-AR'),
+        ]),
+        startY: 55,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [44, 90, 160] },
+        margin: { left: margin, right: margin },
+      })
+
+      doc.save('reporte_tickets.pdf')
+      console.log('PDF generado correctamente')
+    } catch (err) {
+      console.error('Error al exportar PDF:', err)
+      alert('Error al generar el PDF. Ver consola para más detalles.')
+    }
   }
 
   useEffect(() => {
@@ -285,6 +398,7 @@ const ReportePersonalizado = () => {
           <button
             className="btn btn-danger"
             onClick={exportarPDF}
+            type="button"
             title="Descargar PDF"
             style={{ display: 'flex', alignItems: 'center' }}
           >
